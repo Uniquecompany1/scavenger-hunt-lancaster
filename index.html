@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lancaster City Scavenger Hunt</title>
+<style>
+  :root{
+    --navy:#16324f; --navy2:#0f2438; --pale:#e9f1f8; --pale2:#d7e5f2;
+    --ink:#22252a; --muted:#66707c; --card:#ffffff; --line:#d9e2ec;
+    --gold:#e9a820; --goldbg:#fdf3d8; --good:#1e7d32; --bad:#b3261e;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  img, video{max-width:100%;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--pale); color:var(--ink); line-height:1.45;}
+  .wrap{max-width:560px; margin:0 auto; padding:16px 16px 96px;}
+  .hidden{display:none !important;}
+  .center{text-align:center;}
+  .muted{color:var(--muted); font-size:14px;}
+  p{margin:8px 0;}
+  a{color:var(--navy); font-weight:600;}
+
+  /* ---------- shared bits ---------- */
+  .logo-tile{display:flex; align-items:center; justify-content:center; width:64px; height:64px;
+    background:var(--navy); color:#fff; border-radius:16px; font-size:34px; font-weight:800;
+    margin:0 auto 10px; box-shadow:0 4px 14px rgba(22,50,79,.35);}
+  .company{letter-spacing:.22em; font-weight:800; color:var(--navy); text-align:center; font-size:15px;}
+  .company-sub{letter-spacing:.34em; color:var(--muted); text-align:center; font-size:12px; margin-top:2px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+        padding:18px; margin:14px 0; box-shadow:0 1px 3px rgba(22,50,79,.06);}
+  .card h2{margin:0 0 8px; font-size:21px; color:var(--navy);}
+  .pill{display:inline-block; border-radius:999px; padding:2px 10px; font-size:12.5px; font-weight:700;
+        background:var(--pale); color:var(--navy); border:1px solid var(--line); vertical-align:middle;}
+  .pill.pts{background:#fff; border-color:var(--gold); color:#8a5f00;}
+  .pill.type{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .pill.gold{background:var(--goldbg); border-color:var(--gold); color:#8a5f00;}
+  .pill.live{background:#d9534f; color:#fff; border-color:#d9534f;}
+  .pill.done{background:var(--good); color:#fff; border-color:var(--good);}
+  label{display:block; font-weight:600; margin:14px 0 6px; font-size:14px; letter-spacing:.02em;}
+  .smallcaps{font-size:12px; letter-spacing:.18em; font-weight:800; color:var(--muted); text-transform:uppercase;}
+  input[type=text], input[type=password], input[type=number], input[type=datetime-local],
+  textarea, select{
+    width:100%; padding:13px; font-size:16px; border:2px solid var(--line);
+    border-radius:10px; background:#fff; color:var(--ink); font-family:inherit;}
+  textarea{min-height:90px; resize:vertical;}
+  input:focus, textarea:focus, select:focus{outline:none; border-color:var(--navy);}
+  button{display:block; width:100%; padding:15px; margin:12px 0 4px; font-size:16.5px; font-weight:700;
+         border:none; border-radius:999px; background:var(--navy); color:#fff; cursor:pointer;}
+  button.secondary{background:#fff; color:var(--navy); border:2px solid var(--navy);}
+  button.goldbtn{background:var(--gold); color:#3a2a00;}
+  button.danger{background:var(--bad); color:#fff;}
+  button.danger-outline{background:#fff; color:var(--bad); border:2px solid var(--bad);}
+  button.ghost{background:transparent; color:var(--muted); border:none; font-weight:600; font-size:14.5px;}
+  button:disabled{opacity:.45;}
+  button.small{width:auto; display:inline-block; padding:8px 14px; font-size:14px; margin:4px 2px;}
+  .feedback{border-radius:10px; padding:12px 14px; margin:12px 0; font-weight:600; display:none;}
+  .feedback.good{display:block; background:#e6f4ea; color:var(--good);}
+  .feedback.bad{display:block; background:#fdecea; color:var(--bad);}
+  .feedback.info{display:block; background:var(--pale); color:var(--navy);}
+
+  /* ---------- welcome ---------- */
+  #screen-welcome{min-height:100vh; background:linear-gradient(180deg,#f4f9fd 0%, var(--pale2) 100%);
+    padding:34px 16px 24px;}
+  #screen-welcome .inner{max-width:560px; margin:0 auto;}
+  #screen-welcome h1{font-size:31px; color:var(--navy); margin:4px 0 6px; text-align:center;}
+  #screen-welcome .tagline{text-align:center; color:var(--ink); margin-bottom:6px;}
+  .welcome-foot{text-align:center; letter-spacing:.3em; font-size:11px; color:var(--muted); margin-top:22px;}
+
+  /* ---------- header / scorebar ---------- */
+  header.top{background:var(--navy); color:#fff; padding:14px 16px; text-align:center;}
+  header.top h1{margin:0; font-size:19px; line-height:1.2;}
+  header.top .date{opacity:.85; font-size:13px; margin-top:3px;}
+  .scorebar{position:sticky; top:0; z-index:6; background:#fff; border-bottom:1px solid var(--line);
+            padding:9px 16px; display:flex; justify-content:space-between; align-items:center; gap:10px;
+            font-weight:700; font-size:15px; color:var(--navy);}
+  #teamLabel{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+  /* ---------- bottom nav ---------- */
+  .bottomnav{position:fixed; left:0; right:0; bottom:0; z-index:20; background:#fff;
+    border-top:1px solid var(--line); display:flex; padding-bottom:env(safe-area-inset-bottom);}
+  .bottomnav button{flex:1; background:none; color:var(--muted); border-radius:0; margin:0;
+    padding:13px 4px; font-size:15px;}
+  .bottomnav button.active{color:var(--navy); box-shadow:inset 0 3px 0 var(--navy);}
+
+  /* ---------- mission list ---------- */
+  .mission-card{display:flex; gap:12px; align-items:flex-start; text-align:left; width:100%;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:15px; margin:12px 0; cursor:pointer; color:var(--ink); font-weight:400;}
+  .mission-card .num{flex:0 0 auto; width:42px; height:42px; border-radius:11px; background:var(--navy);
+    color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px;}
+  .mission-card.done .num{background:var(--good);}
+  .mission-card .mc-body{flex:1; min-width:0;}
+  .mission-card .mc-title{font-weight:800; color:var(--navy); font-size:16.5px; margin-bottom:2px;}
+  .mission-card .mc-excerpt{color:var(--muted); font-size:13.5px; display:-webkit-box;
+    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .mission-card .mc-pills{margin-top:7px; display:flex; gap:6px; flex-wrap:wrap;}
+  .mission-card .chev{flex:0 0 auto; color:var(--muted); font-size:22px; align-self:center;}
+
+  /* ---------- mission detail ---------- */
+  .mission-head{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .mission-head h2{margin:0;}
+  .upload-box{border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; margin:12px 0;}
+  .upload-box img, .upload-box video{max-width:100%; border-radius:10px; margin-top:10px;}
+  .thumb{max-width:100%; border-radius:10px; margin-top:8px;}
+  .big-warning{background:var(--goldbg); border:3px solid var(--gold); border-radius:14px;
+    padding:18px; font-size:18px; font-weight:800; text-align:center; line-height:1.5; color:#5c4300;}
+
+  /* ---------- bingo ---------- */
+  .bingo-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:14px 0;}
+  .bingo-cell{border:2px solid var(--navy); border-radius:12px; background:#fff; min-height:92px;
+    padding:9px 6px; font-size:13.5px; font-weight:700; color:var(--navy); margin:0;
+    display:flex; align-items:center; justify-content:center; text-align:center;}
+  .bingo-cell.correct{background:var(--navy); color:#fff;}
+  .bingo-cell.skipped{background:var(--pale); color:var(--muted); border-color:var(--line); text-decoration:line-through;}
+
+  /* ---------- pizza ---------- */
+  .slice-row{display:flex; gap:12px; align-items:flex-start; border:1px solid var(--line);
+    border-radius:12px; padding:12px; margin:10px 0; background:#fff;}
+  .slice-row .emoji{font-size:30px; line-height:1.1;}
+  .slice-row.found{border-color:var(--gold); background:var(--goldbg);}
+  .voucher{font-size:27px; font-weight:800; letter-spacing:.12em; color:var(--navy);
+    background:var(--goldbg); border:2px dashed var(--gold); border-radius:12px;
+    padding:14px; text-align:center; margin:12px 0; overflow-wrap:anywhere;}
+
+  /* ---------- scoreboard ---------- */
+  #page-board{background:var(--navy); border-radius:var(--radius); padding:20px 16px; margin:14px 0; color:#fff;}
+  #page-board h2{color:#fff; font-size:29px; margin:2px 0 4px;}
+  #page-board .sub{opacity:.85; font-size:14px;}
+  .rank-row{display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.08);
+    border-radius:12px; padding:12px 14px; margin:9px 0;}
+  .rank-row.me{background:rgba(233,168,32,.25); outline:2px solid var(--gold);}
+  .rank-row .rk{font-size:19px; font-weight:800; min-width:34px;}
+  .rank-row .nm{flex:1; min-width:0; overflow-wrap:anywhere; font-weight:700;}
+  .rank-row .pt{font-weight:800; font-size:17px;}
+  .winner-card{background:#fff; border-radius:var(--radius); padding:16px; margin:12px 0;
+    display:flex; gap:14px; align-items:center; color:var(--ink);}
+  .winner-card .medal{font-size:38px;}
+  .winner-card .wp{font-weight:800; color:var(--navy); font-size:18px;}
+
+  /* ---------- sabotage ---------- */
+  .sabotage{background:#fdecea; border:2px solid var(--bad); border-radius:14px; padding:14px 16px; margin:14px 0;}
+  .sabotage h3{margin:0 0 6px; color:var(--bad);}
+
+  /* ---------- modal / announcement ---------- */
+  .modal-overlay{position:fixed; inset:0; z-index:60; background:rgba(15,36,56,.92);
+    display:flex; align-items:center; justify-content:center; padding:18px;}
+  .modal-box{background:#fff; border-radius:18px; padding:24px 20px; max-width:520px; width:100%;
+    max-height:88vh; overflow-y:auto; text-align:center;}
+  .modal-box.left{text-align:left;}
+  .modal-box h2{color:var(--navy); margin:6px 0 10px;}
+  .notice-card{background:var(--pale); border-radius:12px; padding:13px 14px; margin:9px 0;
+    font-weight:600; color:var(--navy); text-align:left;}
+  .mega{font-size:46px;}
+
+  /* ---------- admin ---------- */
+  .admin-tabs{display:flex; gap:6px; overflow-x:auto; padding:4px 0 10px; -webkit-overflow-scrolling:touch;}
+  .admin-tabs button{flex:0 0 auto; width:auto; padding:11px 15px; min-height:44px; font-size:14px; margin:0;
+    background:#fff; color:var(--navy); border:2px solid var(--navy);}
+  .admin-tabs button.active{background:var(--navy); color:#fff;}
+  .admin-card{background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    padding:15px; margin:12px 0;}
+  .admin-card h3{margin:0 0 8px; color:var(--navy);}
+  .rowflex{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .rowflex > *{flex:0 0 auto;}
+  .rowflex .grow{flex:1 1 120px;}
+  .feed-item{border-bottom:1px solid var(--line); padding:9px 0; font-size:14.5px; overflow-wrap:anywhere;}
+  .feed-item:last-child{border-bottom:none;}
+  .drag-handle{cursor:grab; color:var(--muted); font-size:19px; padding:2px 8px;}
+  .mini-btn{width:auto; display:inline-block; padding:10px 13px; min-height:40px; font-size:13.5px; margin:2px;
+    border-radius:8px;}
+  table.csv{width:100%; border-collapse:collapse; font-size:14px;}
+  table.csv td, table.csv th{border-bottom:1px solid var(--line); padding:7px 4px; text-align:left;}
+  .seg{display:flex; gap:6px;}
+  .seg button{flex:1; background:#fff; color:var(--navy); border:2px solid var(--navy); margin:6px 0;}
+  .seg button.active{background:var(--navy); color:#fff;}
+  .filterrow{display:flex; gap:6px; flex-wrap:wrap;}
+  .filterrow button{width:auto; padding:10px 14px; min-height:40px; font-size:14px; margin:2px 0;
+    background:#fff; color:var(--navy); border:2px solid var(--navy);}
+  .filterrow button.active{background:var(--navy); color:#fff;}
+  .team-photo-preview{width:100%; border-radius:12px; margin-top:10px;}
+  .admin-link{position:fixed; right:12px; bottom:76px; z-index:15; width:auto; padding:9px 15px;
+    font-size:13.5px; background:rgba(22,50,79,.85); border-radius:999px; margin:0;}
+</style>
+</head>
+<body>
+
+<!-- ==================== WELCOME ==================== -->
+<section id="screen-welcome" class="hidden">
+  <div class="inner">
+    <div class="logo-tile">L</div>
+    <div class="company">LANCASTER CITY</div>
+    <div class="company-sub">SCAVENGER HUNT</div>
+    <div class="card">
+      <h1>The Team Adventure</h1>
+      <p class="tagline">Complete missions, earn points, and build the biggest score in Lancaster.</p>
+      <p class="muted center" id="welcomeMsg"></p>
+      <label for="pw">Hunt access code</label>
+      <input type="password" id="pw" inputmode="numeric" autocomplete="off" placeholder="Enter your access code">
+      <div class="feedback" id="pwFeedback"></div>
+      <button id="pwBtn">Sign In to the Hunt →</button>
+      <p class="muted center">Your event organizer has the access code.</p>
+    </div>
+    <div class="welcome-foot">POINTS · TEAMS · FINAL SCORES</div>
+  </div>
+</section>
+
+<!-- ==================== TEAM SETUP ==================== -->
+<section id="screen-team" class="hidden">
+  <header class="top"><h1 id="teamEventName">Lancaster City Scavenger Hunt</h1></header>
+  <div class="wrap">
+    <div class="card">
+      <h2 id="teamHeading">Create a New Team</h2>
+      <p class="muted" id="teamSubtext">Name your team to get started. One phone plays for the whole team.</p>
+      <div class="seg">
+        <button id="segNew" class="active">New Team</button>
+        <button id="segJoin">Join Team</button>
+      </div>
+      <div id="newTeamBox">
+        <label for="teamName">Team Name</label>
+        <input type="text" id="teamName" autocomplete="off" placeholder="Team Name">
+        <label>Team Photo (optional)</label>
+        <div class="upload-box">
+          <div>📷 Tap to take or upload a group photo</div>
+          <input type="file" id="teamPhoto" accept="image/*" class="hidden">
+          <img id="teamPhotoPreview" class="team-photo-preview hidden" alt="Team photo">
+        </div>
+        <button id="teamBtn" disabled>Create My Team</button>
+      </div>
+      <div id="joinTeamBox" class="hidden">
+        <p class="muted">Pick your team to jump back in on this phone:</p>
+        <div id="joinList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== MAIN (missions + scoreboard) ==================== -->
+<section id="screen-main" class="hidden">
+  <header class="top">
+    <h1 id="mainEventName">Lancaster City Scavenger Hunt</h1>
+    <div class="date" id="mainEventDate"></div>
+  </header>
+  <div class="scorebar">
+    <span id="teamLabel">Team</span>
+    <span>☆ <span id="scoreNow">0</span> pts</span>
+  </div>
+  <div class="wrap">
+    <div id="page-missions">
+      <div id="sabotageBox"></div>
+      <div id="missionList"></div>
+      <div id="finishBox"></div>
+      <button class="ghost" id="resetBtn">Leave this team on this phone (progress is saved)</button>
+    </div>
+    <div id="page-board" class="hidden"></div>
+  </div>
+  <nav class="bottomnav">
+    <button id="navMissions" class="active">🗺️ My Missions</button>
+    <button id="navBoard">🏆 Leaderboard</button>
+  </nav>
+</section>
+
+<!-- ==================== MISSION DETAIL ==================== -->
+<section id="screen-mission" class="hidden">
+  <header class="top"><h1 id="missionEventName">Lancaster City Scavenger Hunt</h1></header>
+  <div class="wrap">
+    <button class="secondary" id="backBtn">&larr; Back to missions</button>
+    <div id="missionBody"></div>
+  </div>
+</section>
+
+<!-- ==================== CLOSED / END ==================== -->
+<section id="screen-closed" class="hidden">
+  <header class="top"><h1 id="closedEventName">Lancaster City Scavenger Hunt</h1></header>
+  <div class="wrap"><div id="closedBody"></div></div>
+</section>
+
+<!-- ==================== ADMIN ==================== -->
+<section id="screen-admin" class="hidden">
+  <header class="top"><h1>Admin Dashboard</h1><div class="date">Scavenger Hunt Control Center</div></header>
+  <div class="wrap" style="max-width:860px;">
+    <button class="secondary" id="adminExitBtn">&larr; Back to the hunt</button>
+    <div class="admin-tabs" id="adminTabs"></div>
+    <div id="adminBody"></div>
+  </div>
+</section>
+
+<button id="adminBtn" class="admin-link">Admin</button>
+<div id="modalRoot"></div>
+
+<script src="hunt-data.js"></script>
+<script>
+(function(){
+  "use strict";
+  var H = window.HUNT;
+
+  /* ================================================================
+     DATA LAYER
+     All hunt state (teams, submissions, sub-games, announcements,
+     settings) lives in ONE object, saved to localStorage on this
+     device. Every read/write goes through DB / saveDB() so a future
+     shared backend (e.g. a small API + database) can replace these
+     two functions without touching the rest of the app.
+     ================================================================ */
+  var DB_KEY = "lancaster_hunt_v2_db";
+  var SESSION_KEY = "lancaster_hunt_v2_session";
+
+  function uid(p){ return (p||"id") + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
+  function nowISO(){ return new Date().toISOString(); }
+
+  function seedDB(){
+    var end = new Date(H.startTimeISO).getTime() + (H.durationMinutes||100)*60000;
+    return {
+      version: 2,
+      settings: {
+        eventName: H.eventName,
+        eventDateLabel: H.eventDateLabel,
+        eventDateTimeLabel: H.eventDateTimeLabel,
+        welcomeMessage: H.welcomeMessage,
+        guestPassword: H.password,
+        adminPassword: H.adminPassword,
+        startTimeISO: H.startTimeISO,
+        endTimeISO: new Date(end).toISOString(),
+        status: "open"   // open | live | paused | ended
+      },
+      missions: JSON.parse(JSON.stringify(H.missions)),
+      bingoSquares: JSON.parse(JSON.stringify(H.bingoSquares)),
+      pizzaSlices: JSON.parse(JSON.stringify(H.pizzaSlices)),
+      doughQuestions: JSON.parse(JSON.stringify(H.doughQuestions)),
+      teams: [],            // {id,name,photo,points,adjustments:[],createdAt}
+      submissions: [],      // {id,teamId,missionId,kind,type,media:[],text,points,status,ts,meta}
+      bingo: {},            // teamId -> {squares:{idx:"correct"|"skipped"}, lineAwarded:bool, extraAwarded:int, rewardUnlocked:bool}
+      pizza: {},            // teamId -> {found:{idx:dataUrl}, code, redeemed, bonusAwarded, pointsAwarded}
+      quiz: {},             // teamId -> {missionId: {idx, earned, finished}}
+      nocap: {},            // teamId -> {videoSubmitted:bool, scored:bool}
+      sabotages: [],        // {id,targetTeamId,status,ts,proofs:{key:{url,type,ts}}}
+      announcements: (H.seedAnnouncements||[]).map(function(a,i){
+        return { id:"seed_"+i, type:a.type, text:a.text, fullscreen:!!a.fullscreen, hidden:false, ts:nowISO() };
+      }),
+      resetEpoch: 0
+    };
+  }
+  function loadDB(){
+    try{
+      var raw = localStorage.getItem(DB_KEY);
+      if (raw){ var d = JSON.parse(raw); if (d && d.version === 2) return d; }
+    }catch(e){}
+    var fresh = seedDB(); saveDB(fresh); return fresh;
+  }
+  function saveDB(d){
+    try{ localStorage.setItem(DB_KEY, JSON.stringify(d || DB)); }
+    catch(e){ /* storage full (large videos) — state still lives in memory for this session */ }
+  }
+  var DB = loadDB();
+
+  function loadSession(){
+    try{ return JSON.parse(localStorage.getItem(SESSION_KEY)) || {}; }catch(e){ return {}; }
+  }
+  function saveSession(){ try{ localStorage.setItem(SESSION_KEY, JSON.stringify(session)); }catch(e){} }
+  var session = loadSession();   // {unlocked, teamId, seenAnnouncements:[], resetEpoch}
+  if (session.resetEpoch === undefined) session.resetEpoch = DB.resetEpoch;
+
+  /* Force Reset All Devices: if the host bumped the epoch, this device
+     drops its team session and goes back to the welcome screen. */
+  function checkResetEpoch(){
+    if (session.resetEpoch !== DB.resetEpoch){
+      session = { unlocked:false, teamId:null, seenAnnouncements:[], resetEpoch: DB.resetEpoch };
+      saveSession();
+    }
+  }
+
+  /* ---------- lookups ---------- */
+  function teamById(id){ for (var i=0;i<DB.teams.length;i++) if (DB.teams[i].id===id) return DB.teams[i]; return null; }
+  function myTeam(){ return session.teamId ? teamById(session.teamId) : null; }
+  function missionById(id){ for (var i=0;i<DB.missions.length;i++) if (DB.missions[i].id===id) return DB.missions[i]; return null; }
+  function missionIndex(id){ for (var i=0;i<DB.missions.length;i++) if (DB.missions[i].id===id) return i; return -1; }
+  function submissionsFor(teamId, missionId){
+    return DB.submissions.filter(function(s){ return s.teamId===teamId && (!missionId || s.missionId===missionId); });
+  }
+  function missionsCompleted(teamId){
+    var seen = {};
+    DB.submissions.forEach(function(s){ if (s.teamId===teamId && s.meta && s.meta.completesMission) seen[s.missionId]=true; });
+    return Object.keys(seen).length;
+  }
+  function rankedTeams(){
+    return DB.teams.slice().sort(function(a,b){ return b.points - a.points; });
+  }
+  function activeSabotageFor(teamId){
+    for (var i=0;i<DB.sabotages.length;i++)
+      if (DB.sabotages[i].targetTeamId===teamId && DB.sabotages[i].status==="active") return DB.sabotages[i];
+    return null;
+  }
+
+  /* ---------- points ----------
+     Points are awarded the moment a team submits (Kendra's standing
+     self-report rule). The host keeps oversight in Admin: review the
+     media, and add/subtract points on the Points tab at any time. */
+  function awardPoints(team, pts, reason){
+    team.points += pts;
+    team.adjustments.push({ pts: pts, reason: reason || "", ts: nowISO(), auto: true });
+  }
+  function addSubmission(sub){
+    sub.id = uid("sub"); sub.ts = nowISO(); sub.status = "pending";
+    DB.submissions.push(sub);
+    return sub;
+  }
+
+  /* ---------- answer matching (same fuzzy rules as v1) ---------- */
+  function norm(s){
+    return (s||"").toLowerCase().trim()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g," ")
+      .replace(/\s+/g," ").trim()
+      .replace(/^(the|a|an) /,"");
+  }
+  function editDist(a,b){
+    var m=a.length, n=b.length, d=[], i, j;
+    for(i=0;i<=m;i++){ d.push([i]); }
+    for(j=0;j<=n;j++){ d[0][j]=j; }
+    for(i=1;i<=m;i++) for(j=1;j<=n;j++){
+      d[i][j]=Math.min(d[i-1][j]+1, d[i][j-1]+1, d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+    }
+    return d[m][n];
+  }
+  function isCorrect(input, answers){
+    var val = norm(input);
+    if (!val) return false;
+    answers = answers || [];
+    for (var i=0;i<answers.length;i++){
+      var a = norm(answers[i]);
+      if (val === a) return true;
+      if (a.length >= 5 && editDist(val, a) <= 1) return true;
+      if (a.length >= 6 && (val.indexOf(a) > -1 || a.indexOf(val) > -1)) return true;
+    }
+    return false;
+  }
+
+  /* ---------- media helpers ---------- */
+  function fileToDataUrl(file, cb){
+    if (file && file.type && file.type.indexOf("image") === 0){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        var max = 1024, w = img.width, h = img.height;
+        var scale = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(w*scale)); c.height = Math.max(1, Math.round(h*scale));
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        cb(c.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); readRaw(file, cb); };
+      img.src = url;
+    } else readRaw(file, cb);
+  }
+  function readRaw(file, cb){
+    var r = new FileReader();
+    r.onload = function(){ cb(r.result); };
+    r.onerror = function(){ cb(null); };
+    r.readAsDataURL(file);
+  }
+  function esc(s){
+    return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;");
+  }
+  function excerpt(text, n){
+    text = (text||"").replace(/\s+/g," ").trim();
+    return text.length > (n||110) ? text.slice(0, n||110).trim() + "…" : text;
+  }
+  function mediaTag(url, type){
+    if (!url) return "";
+    if (type === "video" || /^data:video/.test(url))
+      return "<video class='thumb' controls src='" + url + "'></video>";
+    return "<img class='thumb' src='" + url + "' alt='submission'>";
+  }
+
+  /* ================================================================
+     SCREENS
+     ================================================================ */
+  var SCREENS = ["screen-welcome","screen-team","screen-main","screen-mission","screen-closed","screen-admin"];
+  var currentScreen = "screen-welcome";
+  var mainPage = "missions";   // missions | board
+  var lastAdminTab = "live";
+
+  function show(id){
+    currentScreen = id;
+    SCREENS.forEach(function(s){ document.getElementById(s).classList.toggle("hidden", s !== id); });
+    document.getElementById("adminBtn").classList.toggle("hidden", id === "screen-admin");
+    window.scrollTo(0, 0);
+  }
+  function refreshHeaders(){
+    var s = DB.settings;
+    document.title = s.eventName;
+    document.getElementById("teamEventName").textContent = s.eventName;
+    document.getElementById("mainEventName").textContent = s.eventName;
+    document.getElementById("missionEventName").textContent = s.eventName;
+    document.getElementById("closedEventName").textContent = s.eventName;
+    document.getElementById("mainEventDate").textContent = s.eventDateLabel || "";
+    document.getElementById("welcomeMsg").textContent = s.welcomeMessage || "";
+    var t = myTeam();
+    document.getElementById("teamLabel").textContent = t ? t.name : "Team";
+    document.getElementById("scoreNow").textContent = t ? t.points : 0;
+  }
+
+  /* ================================================================
+     MODALS + ANNOUNCEMENTS
+     ================================================================ */
+  var modalRoot = document.getElementById("modalRoot");
+  function closeModal(){ modalRoot.innerHTML = ""; }
+  function openModal(html, leftAlign){
+    modalRoot.innerHTML = "<div class='modal-overlay'><div class='modal-box" +
+      (leftAlign ? " left" : "") + "'>" + html + "</div></div>";
+    return modalRoot.firstChild.firstChild;
+  }
+  function unseenAnnouncements(){
+    var seen = session.seenAnnouncements || [];
+    return DB.announcements.filter(function(a){ return !a.hidden && seen.indexOf(a.id) === -1; });
+  }
+  function maybeShowAnnouncements(){
+    var list = unseenAnnouncements();
+    if (!list.length) return;
+    var html = "<div class='mega'>📣</div><div class='smallcaps'>Hunt Announcement</div>" +
+      list.map(function(a){
+        return "<div class='notice-card'>" + (a.type === "Celebration" ? "🎉 " : "") + esc(a.text) + "</div>";
+      }).join("") +
+      "<button id='annOk'>Okay</button>";
+    var box = openModal(html);
+    box.querySelector("#annOk").addEventListener("click", function(){
+      session.seenAnnouncements = (session.seenAnnouncements || []).concat(list.map(function(a){ return a.id; }));
+      saveSession(); closeModal();
+    });
+  }
+
+  /* ================================================================
+     WELCOME / ACCESS CODE
+     ================================================================ */
+  document.getElementById("pwBtn").addEventListener("click", function(){
+    var v = document.getElementById("pw").value.trim();
+    var fb = document.getElementById("pwFeedback");
+    if (v === DB.settings.guestPassword){
+      session.unlocked = true; saveSession();
+      enterHunt();
+    } else {
+      fb.className = "feedback bad";
+      fb.textContent = "That access code doesn't match. Check with your event organizer and try again.";
+    }
+  });
+
+  function enterHunt(){
+    refreshHeaders();
+    if (DB.settings.status === "ended"){ renderClosed(); show("screen-closed"); return; }
+    var t = myTeam();
+    if (!t){ renderTeamSetup(); show("screen-team"); return; }
+    renderMain(); show("screen-main");
+    maybeShowAnnouncements();
+  }
+
+  /* ================================================================
+     TEAM SETUP (new / join, optional photo)
+     ================================================================ */
+  var teamPhotoData = null;
+  function renderTeamSetup(){
+    var segNew = document.getElementById("segNew"), segJoin = document.getElementById("segJoin");
+    function setMode(join){
+      segNew.classList.toggle("active", !join);
+      segJoin.classList.toggle("active", join);
+      document.getElementById("newTeamBox").classList.toggle("hidden", join);
+      document.getElementById("joinTeamBox").classList.toggle("hidden", !join);
+      document.getElementById("teamHeading").textContent = join ? "Join Your Team" : "Create a New Team";
+      document.getElementById("teamSubtext").textContent = join
+        ? "Pick your team to jump back in on this phone."
+        : "Name your team to get started. One phone plays for the whole team.";
+      if (join) renderJoinList();
+    }
+    segNew.onclick = function(){ setMode(false); };
+    segJoin.onclick = function(){ setMode(true); };
+    var nameInput = document.getElementById("teamName");
+    nameInput.oninput = function(){
+      document.getElementById("teamBtn").disabled = !nameInput.value.trim();
+    };
+    var photoInput = document.getElementById("teamPhoto");
+    document.querySelector("#screen-team .upload-box").onclick = function(){ photoInput.click(); };
+    photoInput.onchange = function(){
+      if (!photoInput.files || !photoInput.files[0]) return;
+      fileToDataUrl(photoInput.files[0], function(url){
+        teamPhotoData = url;
+        var prev = document.getElementById("teamPhotoPreview");
+        if (url){ prev.src = url; prev.classList.remove("hidden"); }
+      });
+    };
+    document.getElementById("teamBtn").onclick = function(){
+      var name = nameInput.value.trim();
+      if (!name) return;
+      var team = { id: uid("team"), name: name, photo: teamPhotoData, points: 0,
+                   adjustments: [], createdAt: nowISO() };
+      DB.teams.push(team); saveDB();
+      session.teamId = team.id; saveSession();
+      teamPhotoData = null;
+      enterHunt();
+    };
+  }
+  function renderJoinList(){
+    var box = document.getElementById("joinList");
+    if (!DB.teams.length){
+      box.innerHTML = "<p class='muted'>No teams yet — create the first one.</p>"; return;
+    }
+    box.innerHTML = "";
+    DB.teams.forEach(function(t){
+      var b = document.createElement("button");
+      b.className = "secondary";
+      b.textContent = t.name + " · " + t.points + " pts";
+      b.addEventListener("click", function(){
+        session.teamId = t.id; saveSession(); enterHunt();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  /* ================================================================
+     MAIN — missions list + scoreboard
+     ================================================================ */
+  document.getElementById("navMissions").addEventListener("click", function(){ setMainPage("missions"); });
+  document.getElementById("navBoard").addEventListener("click", function(){ setMainPage("board"); });
+  function setMainPage(p){
+    mainPage = p;
+    document.getElementById("navMissions").classList.toggle("active", p === "missions");
+    document.getElementById("navBoard").classList.toggle("active", p === "board");
+    document.getElementById("page-missions").classList.toggle("hidden", p !== "missions");
+    document.getElementById("page-board").classList.toggle("hidden", p !== "board");
+    if (p === "board") renderBoard();
+    window.scrollTo(0, 0);
+  }
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    session.teamId = null; saveSession();
+    renderTeamSetup(); show("screen-team");
+  });
+
+  function missionEarned(teamId, missionId){
+    var total = 0, found = false;
+    DB.submissions.forEach(function(s){
+      if (s.teamId === teamId && s.missionId === missionId && s.meta && s.meta.completesMission){
+        total += s.points; found = true;
+      }
+    });
+    return found ? total : undefined;
+  }
+  function allMissionsDone(teamId){
+    return DB.missions.every(function(m){ return missionEarned(teamId, m.id) !== undefined; });
+  }
+
+  function renderMain(){
+    refreshHeaders();
+    renderSabotageBox();
+    renderMissionList();
+    if (mainPage === "board") renderBoard();
+  }
+
+  function renderMissionList(){
+    var t = myTeam();
+    var list = document.getElementById("missionList");
+    list.innerHTML = "";
+    var locked = t && !!activeSabotageFor(t.id);
+    DB.missions.forEach(function(m, i){
+      var earned = t ? missionEarned(t.id, m.id) : undefined;
+      var card = document.createElement("div");
+      card.className = "mission-card" + (earned !== undefined ? " done" : "");
+      card.innerHTML =
+        "<div class='num'>" + (earned !== undefined ? "✓" : (i + 1)) + "</div>" +
+        "<div class='mc-body'>" +
+          "<div class='mc-title'>" + esc(m.title) + "</div>" +
+          "<div class='mc-excerpt'>" + esc(excerpt((m.body || []).join(" "))) + "</div>" +
+          "<div class='mc-pills'>" +
+            (earned !== undefined
+              ? "<span class='pill done'>✓ " + earned + " pts</span>"
+              : "<span class='pill pts'>☆ " + m.points + " pts</span>") +
+            "<span class='pill type'>" + esc(m.type) + "</span>" +
+            (m.restroom ? "<span class='pill gold'>Restroom</span>" : "") +
+          "</div>" +
+        "</div><div class='chev'>›</div>";
+      card.addEventListener("click", function(){
+        if (locked){
+          alert("Your team has an active SABOTAGE! Complete your sabotage challenges to unlock your missions.");
+          return;
+        }
+        if (DB.settings.status === "paused"){
+          alert("The hunt is paused by your host. Hang tight!");
+          return;
+        }
+        openMission(m.id);
+      });
+      list.appendChild(card);
+    });
+
+    var fb = document.getElementById("finishBox");
+    if (t && allMissionsDone(t.id)){
+      fb.innerHTML = "<div class='card center'><h2>🏆 You finished every mission!</h2>" +
+        "<p>Team <strong>" + esc(t.name) + "</strong></p>" +
+        "<div style='font-size:46px;font-weight:800;color:var(--navy);'>" + t.points + " pts</div>" +
+        "<p class='muted'>Keep an eye on the Leaderboard — final scores are announced by your host.</p></div>";
+    } else fb.innerHTML = "";
+  }
+
+  function renderBoard(){
+    var t = myTeam();
+    var board = document.getElementById("page-board");
+    var ranked = rankedTeams();
+    var html = "<div class='rowflex'><div class='logo-tile' style='margin:0;width:44px;height:44px;font-size:23px;border-radius:11px;background:#fff;color:var(--navy);'>L</div>" +
+      "<div class='grow'><strong>" + esc(DB.settings.eventName) + "</strong></div>" +
+      "<span class='pill live'>🏆 LIVE</span></div>" +
+      "<h2>Leaderboard</h2>" +
+      "<div class='sub'>Final scores for every team · updates every 8 seconds</div>";
+    if (!ranked.length){
+      html += "<p style='margin-top:16px;'>No teams on the board yet.</p>";
+    } else {
+      ranked.forEach(function(tm, i){
+        html += "<div class='rank-row" + (t && tm.id === t.id ? " me" : "") + "'>" +
+          "<div class='rk'>" + (i + 1) + "</div>" +
+          "<div class='nm'>" + esc(tm.name) + "</div>" +
+          "<div class='pt'>" + tm.points + " pts</div></div>";
+      });
+    }
+    board.innerHTML = html;
+  }
+
+  /* ================================================================
+     CLOSED / END SCREEN (top 3 + Keep the Fun Going)
+     ================================================================ */
+  function renderClosed(){
+    refreshHeaders();
+    var ranked = rankedTeams();
+    var medals = ["🥇", "🥈", "🥉"];
+    var places = ["1st Place", "2nd Place", "3rd Place"];
+    var html = "<div class='card center'><h2>🎉 This Hunt Has Closed</h2>" +
+      "<p>Final scores are final. Thanks for taking part.</p></div>" +
+      "<div class='center' style='margin:18px 0 4px;'><div class='smallcaps'>And the winners are......</div>" +
+      "<p class='muted'>Here is how the teams closed out the hunt.</p></div>";
+    ranked.slice(0, 3).forEach(function(tm, i){
+      html += "<div class='winner-card'><div class='medal'>" + medals[i] + "</div>" +
+        "<div><div class='wp'>" + places[i] + " — " + esc(tm.name) + "</div>" +
+        "<div class='muted'>" + tm.points + " POINTS</div></div></div>";
+    });
+    if (!ranked.length) html += "<div class='card center'><p class='muted'>No teams played this hunt.</p></div>";
+    html += "<div class='card center'><h2>Thank you for playing!</h2>" +
+      "<p>Thanks for bringing the energy to every stop.</p></div>" +
+      "<div class='center smallcaps' style='margin-top:20px;'>Keep the Fun Going</div>" +
+      "<button class='secondary' id='ctaTours'>Book Tours ↗</button>" +
+      "<button class='secondary' id='ctaGift'>Buy Gift Cards ↗</button>" +
+      "<div class='welcome-foot'>EXPERIENCE LANCASTER PA</div>";
+    document.getElementById("closedBody").innerHTML = html;
+    document.getElementById("ctaTours").addEventListener("click", function(){
+      window.open("https://experiencelancasterpa.com", "_blank");
+    });
+    document.getElementById("ctaGift").addEventListener("click", function(){
+      window.open("https://www.experiencelancasterpa.com/giftcards", "_blank");
+    });
+  }
+
+  /* ================================================================
+     MISSION DETAIL
+     ================================================================ */
+  document.getElementById("backBtn").addEventListener("click", function(){
+    renderMain(); show("screen-main");
+  });
+
+  function missionHeadHTML(m, earned){
+    return "<div class='mission-head'><h2>" + esc(m.title) + "</h2>" +
+      "<span class='pill pts'>☆ " + m.points + " pts</span>" +
+      "<span class='pill type'>" + esc(m.type) + "</span>" +
+      (m.restroom ? "<span class='pill gold'>Restroom</span>" : "") + "</div>" +
+      (earned !== undefined ? "<p><span class='pill done'>✓ Completed — " + earned + " pts earned</span></p>" : "") +
+      (m.body || []).map(function(p){ return "<p>" + esc(p) + "</p>"; }).join("");
+  }
+  function finishMission(msg){
+    saveDB(); renderMain(); show("screen-main");
+    if (msg) setTimeout(function(){ alert(msg); }, 60);
+  }
+
+  /* Upload widget: returns {getUrls()} and calls onChange(urls). */
+  function mountUploader(container, accept, label){
+    var urls = [];
+    container.innerHTML = "<div class='upload-box'><div>" + label + "</div>" +
+      "<input type='file' accept='" + accept + "' class='hidden'>" +
+      "<div class='up-preview'></div></div>";
+    var box = container.firstChild;
+    var input = box.querySelector("input");
+    var preview = box.querySelector(".up-preview");
+    box.addEventListener("click", function(e){ if (e.target.tagName !== "VIDEO") input.click(); });
+    input.addEventListener("change", function(){
+      if (!input.files || !input.files[0]) return;
+      var f = input.files[0];
+      var isVideo = f.type.indexOf("video") === 0;
+      fileToDataUrl(f, function(url){
+        if (!url) return;
+        urls = [url];
+        preview.innerHTML = mediaTag(url, isVideo ? "video" : "photo");
+        container._urls = urls;
+        if (container._onchange) container._onchange(urls);
+      });
+    });
+    container._urls = urls;
+    return container;
+  }
+
+  function openMission(id){
+    var m = missionById(id);
+    var t = myTeam();
+    if (!m || !t) return;
+    var body = document.getElementById("missionBody");
+    body.innerHTML = "";
+    var card = document.createElement("div");
+    card.className = "card";
+    body.appendChild(card);
+    var earned = missionEarned(t.id, m.id);
+
+    switch (m.control){
+      case "info":   renderInfo(m, card, t, earned); break;
+      case "photo":  renderPhotoLike(m, card, t, earned, false); break;
+      case "photo2": renderPhotoLike(m, card, t, earned, true); break;
+      case "video":  renderVideo(m, card, t, earned); break;
+      case "quiz":   renderQuiz(m, card, t, earned); break;
+      case "bingo":  renderBingo(m, card, t, earned); break;
+      case "pizza":  renderPizza(m, card, t, earned); break;
+      case "nocap":  renderNoCap(m, card, t, earned); break;
+      case "checkin": renderCheckin(m, card, t, earned); break;
+      default:       renderPhotoLike(m, card, t, earned, false);
+    }
+    show("screen-mission");
+  }
+
+  /* ---------- Mission 1: info + bookworm gate ---------- */
+  function renderInfo(m, card, t, earned){
+    if (!t.bookworm){
+      card.innerHTML = "<div class='mission-head'><h2>" + esc(m.title) + "</h2>" +
+        "<span class='pill pts'>☆ " + m.points + " pts</span></div>" +
+        "<p>First, pick your team's <strong>Bookworm</strong> — your most detail-oriented reader. " +
+        "Their one job: read every mission out loud, word for word, so nothing gets missed.</p>" +
+        "<label for='bwName'>Bookworm's first name</label>" +
+        "<input type='text' id='bwName' autocomplete='off' placeholder='First name'>" +
+        "<button id='bwBtn'>That's our Bookworm</button>";
+      card.querySelector("#bwBtn").addEventListener("click", function(){
+        var v = card.querySelector("#bwName").value.trim();
+        if (!v){ card.querySelector("#bwName").focus(); return; }
+        t.bookworm = v; saveDB();
+        card.innerHTML = "<div class='big-warning'>" + esc(v.toUpperCase()) + " — YOU ARE THE BOOKWORM.<br><br>" +
+          "READ EVERY MISSION OUT LOUD, WORD FOR WORD.<br>DO NOT SKIM. DO NOT SKIP.<br>" +
+          "EVERYTHING YOUR TEAM NEEDS IS IN THE MISSION TEXT.</div>" +
+          "<button id='bwOk'>We Understand</button>";
+        card.querySelector("#bwOk").addEventListener("click", function(){ openMission(m.id); });
+      });
+      return;
+    }
+    var html = missionHeadHTML(m, earned) +
+      "<p><strong>Check in:</strong> text your team name to your host at " +
+      "<a href='sms:" + H.hostPhoneText + "?&body=" + encodeURIComponent(t.name) + "'>" +
+      H.hostPhoneDisplay + "</a> and check in with your host in person before starting.</p>";
+    if (earned === undefined) html += "<button id='infoDone'>We assigned our roles — start the hunt</button>";
+    card.innerHTML = html;
+    var btn = card.querySelector("#infoDone");
+    if (btn) btn.addEventListener("click", function(){
+      awardPoints(t, m.points, "Mission: " + m.title);
+      addSubmission({ teamId: t.id, missionId: m.id, kind: "text", type: "Text", media: [],
+        text: m.submitText || "Ready to begin!", points: m.points, meta: { completesMission: true } });
+      finishMission("Mission complete! +" + m.points + " points.");
+    });
+  }
+
+  /* ---------- photo / photo2 (self-reported) ---------- */
+  function renderPhotoLike(m, card, t, earned, twoPhotos){
+    var html = missionHeadHTML(m, earned);
+    if (m.hostBonus) html += "<p class='muted'>🏆 " + esc(m.hostBonus.label) + "</p>";
+    if (earned !== undefined){
+      html += "<p class='muted'>Your submission:</p>" +
+        submissionsFor(t.id, m.id).map(function(s){
+          return (s.media || []).map(function(u){ return mediaTag(u, s.type); }).join("");
+        }).join("");
+      card.innerHTML = html; return;
+    }
+    html += "<div id='up1'></div>";
+    if (twoPhotos) html += "<div id='up2'></div>";
+    html += "<button id='photoSubmit' disabled>Submit photo" + (twoPhotos ? "s" : "") + " — claim " + m.points + " pts</button>";
+    card.innerHTML = html;
+    var labels = m.photoLabels || ["📷 Tap to take or upload your photo", "📷 Tap to take or upload your photo"];
+    var up1 = mountUploader(card.querySelector("#up1"), "image/*", labels[0]);
+    var up2 = twoPhotos ? mountUploader(card.querySelector("#up2"), "image/*", labels[1] || labels[0]) : null;
+    function refresh(){
+      var ok = up1._urls.length && (!up2 || up2._urls.length);
+      card.querySelector("#photoSubmit").disabled = !ok;
+    }
+    up1._onchange = refresh; if (up2) up2._onchange = refresh;
+    card.querySelector("#photoSubmit").addEventListener("click", function(){
+      var media = up1._urls.concat(up2 ? up2._urls : []);
+      awardPoints(t, m.points, "Mission: " + m.title);
+      addSubmission({ teamId: t.id, missionId: m.id, kind: "photo", type: "Photo", media: media,
+        text: "", points: m.points, meta: { completesMission: true } });
+      finishMission("Submitted! +" + m.points + " points.");
+    });
+  }
+
+  /* ---------- video (self-reported) ---------- */
+  function renderVideo(m, card, t, earned){
+    var html = missionHeadHTML(m, earned);
+    if (earned !== undefined){
+      html += "<p class='muted'>Your submission:</p>" +
+        submissionsFor(t.id, m.id).map(function(s){
+          return (s.media || []).map(function(u){ return mediaTag(u, "video"); }).join("");
+        }).join("");
+      card.innerHTML = html; return;
+    }
+    html += "<div id='upV'></div><button id='videoSubmit' disabled>Submit video — claim " + m.points + " pts</button>";
+    card.innerHTML = html;
+    var up = mountUploader(card.querySelector("#upV"), "video/*", "🎬 Tap to record or upload your video");
+    up._onchange = function(){ card.querySelector("#videoSubmit").disabled = !up._urls.length; };
+    card.querySelector("#videoSubmit").addEventListener("click", function(){
+      awardPoints(t, m.points, "Mission: " + m.title);
+      addSubmission({ teamId: t.id, missionId: m.id, kind: "video", type: "Video", media: up._urls.slice(),
+        text: "", points: m.points, meta: { completesMission: true } });
+      finishMission("Submitted! +" + m.points + " points.");
+    });
+  }
+
+  /* ---------- Show Me the Dough quiz ---------- */
+  function renderQuiz(m, card, t, earned){
+    var qs = DB.doughQuestions;
+    DB.quiz[t.id] = DB.quiz[t.id] || {};
+    var st = DB.quiz[t.id][m.id] || { idx: 0, earned: 0, finished: false };
+    DB.quiz[t.id][m.id] = st;
+    var html = missionHeadHTML(m, earned);
+    if (st.finished || earned !== undefined){
+      html += "<p class='muted'>Quiz complete — you filled the ATM with $" + (st.earned * 10) +
+        " of dough and earned " + (earned !== undefined ? earned : st.earned) + " points.</p>";
+      card.innerHTML = html; return;
+    }
+    var q = qs[st.idx];
+    html += "<p class='muted'>Question " + (st.idx + 1) + " of " + qs.length +
+      " · ATM so far: $" + (st.earned * 10) + " of $600</p>" +
+      "<div style='font-size:22px;'>" + "💵".repeat(Math.max(0, st.earned / 10)) + "</div>" +
+      "<p><strong>" + esc(q.q) + "</strong></p>" +
+      "<label for='qInput'>Your answer ($100 of dough if you're right)</label>" +
+      "<input type='text' id='qInput' autocomplete='off'>" +
+      "<div class='feedback' id='qFb'></div>" +
+      "<button id='qBtn'>Submit answer</button>" +
+      "<button class='ghost' id='qSkip'>Skip this question</button>";
+    card.innerHTML = html;
+    function advance(gained){
+      st.earned += gained; st.idx++;
+      if (st.idx >= qs.length){
+        st.finished = true;
+        awardPoints(t, st.earned, "Mission: " + m.title);
+        addSubmission({ teamId: t.id, missionId: m.id, kind: "quiz", type: "Text", media: [],
+          text: "Show Me the Dough complete — $" + (st.earned * 10) + " of $600 (" + st.earned + " pts)",
+          points: st.earned, meta: { completesMission: true } });
+        saveDB();
+        finishMission("Quiz complete! You earned " + st.earned + " points.");
+      } else { saveDB(); openMission(m.id); }
+    }
+    card.querySelector("#qBtn").addEventListener("click", function(){
+      var v = card.querySelector("#qInput").value;
+      var fb = card.querySelector("#qFb");
+      if (isCorrect(v, q.answers)){
+        fb.className = "feedback good"; fb.textContent = "Correct! A $100 bill goes in. +10 points.";
+        setTimeout(function(){ advance(10); }, 750);
+      } else {
+        fb.className = "feedback bad"; fb.textContent = "Not quite — try again, or skip.";
+      }
+    });
+    card.querySelector("#qSkip").addEventListener("click", function(){ advance(0); });
+  }
+
+  /* ---------- Juice Box BINGO ---------- */
+  function bingoState(teamId){
+    DB.bingo[teamId] = DB.bingo[teamId] || { squares: {}, lineAwarded: false, extraCount: 0, rewardUnlocked: false };
+    return DB.bingo[teamId];
+  }
+  function bingoLineComplete(st){
+    var lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    return lines.some(function(L){
+      return L.every(function(i){ return st.squares[i] === "correct"; });
+    });
+  }
+  function renderBingo(m, card, t, earned){
+    var st = bingoState(t.id);
+    var correct = Object.keys(st.squares).filter(function(k){ return st.squares[k] === "correct"; }).length;
+    var skipped = Object.keys(st.squares).filter(function(k){ return st.squares[k] === "skipped"; }).length;
+    var html = missionHeadHTML(m, earned) +
+      "<p class='muted'>Progress: " + correct + "/9 squares correct · " + skipped + " skipped</p>";
+    if (st.rewardUnlocked)
+      html += "<div class='big-warning'>🎉 BINGO! Show this screen at Jimmy Juice to redeem your drink.</div>";
+    html += "<div class='bingo-grid'>";
+    DB.bingoSquares.forEach(function(sq, i){
+      var state = st.squares[i];
+      html += "<button class='bingo-cell " + (state || "") + "' data-i='" + i + "'>" +
+        esc(sq.label) + (state === "correct" ? " ✓" : "") + "</button>";
+    });
+    html += "</div><p class='muted'>Tap a square to answer its question. Complete any line — across, down, or diagonal — to unlock your drink, then keep playing: every extra correct square is worth 10 bonus points.</p>";
+    card.innerHTML = html;
+    card.querySelectorAll(".bingo-cell").forEach(function(cell){
+      cell.addEventListener("click", function(){
+        var i = parseInt(cell.getAttribute("data-i"), 10);
+        if (st.squares[i]) return;   // already correct or skipped
+        openBingoSquare(m, t, i);
+      });
+    });
+  }
+  function openBingoSquare(m, t, i){
+    var sq = DB.bingoSquares[i];
+    var st = bingoState(t.id);
+    var html = "<div class='smallcaps'>BINGO Square " + (i + 1) + "</div><h2>" + esc(sq.label) + "</h2>" +
+      "<p>" + esc(sq.question) + "</p>" +
+      "<p><button class='small secondary' id='sqHintBtn'>💡 Show hint</button></p>" +
+      "<p class='muted hidden' id='sqHint'>" + esc(sq.hint || "") + "</p>";
+    if (sq.choices && sq.choices.length){
+      html += sq.choices.map(function(c, ci){
+        return "<button class='secondary' data-choice='" + ci + "'>" + esc(c) + "</button>";
+      }).join("");
+    } else {
+      html += "<label for='sqInput'>Your answer</label><input type='text' id='sqInput' autocomplete='off'>" +
+        "<div class='feedback' id='sqFb'></div><button id='sqSubmit'>Submit answer</button>";
+    }
+    html += "<button class='ghost' id='sqSkip'>Skip this square</button>" +
+      "<button class='ghost' id='sqClose'>Back to the board</button>";
+    var box = openModal(html, true);
+    box.querySelector("#sqHintBtn").addEventListener("click", function(){
+      box.querySelector("#sqHint").classList.remove("hidden");
+    });
+    box.querySelector("#sqClose").addEventListener("click", function(){ closeModal(); openMission(m.id); });
+    box.querySelector("#sqSkip").addEventListener("click", function(){
+      st.squares[i] = "skipped"; saveDB(); closeModal(); openMission(m.id);
+    });
+    function markCorrect(){
+      st.squares[i] = "correct";
+      var correct = Object.keys(st.squares).filter(function(k){ return st.squares[k] === "correct"; }).length;
+      var skipped = Object.keys(st.squares).filter(function(k){ return st.squares[k] === "skipped"; }).length;
+      if (!st.lineAwarded && bingoLineComplete(st)){
+        st.lineAwarded = true; st.rewardUnlocked = true;
+        awardPoints(t, m.points, "Mission: " + m.title + " (line)");
+        addSubmission({ teamId: t.id, missionId: m.id, kind: "bingo", type: "Text", media: [],
+          text: "BINGO completed! Correct: " + correct + "/9, Skipped: " + skipped,
+          points: m.points, meta: { completesMission: true } });
+        saveDB(); closeModal();
+        alert("🎉 BINGO! Line complete — your drink at Jimmy Juice is unlocked. +" + m.points + " points. Keep playing for +10 per extra correct square!");
+        openMission(m.id);
+      } else if (st.lineAwarded){
+        st.extraCount++;
+        awardPoints(t, 10, "BINGO extra square");
+        addSubmission({ teamId: t.id, missionId: m.id, kind: "bingo", type: "Text", media: [],
+          text: "BINGO extra correct square (+10)", points: 10, meta: { completesMission: false } });
+        saveDB(); closeModal(); openMission(m.id);
+      } else {
+        saveDB(); closeModal(); openMission(m.id);
+      }
+    }
+    if (sq.choices && sq.choices.length){
+      box.querySelectorAll("[data-choice]").forEach(function(b){
+        b.addEventListener("click", function(){
+          if (isCorrect(sq.choices[parseInt(b.getAttribute("data-choice"), 10)], sq.answers)) markCorrect();
+          else { b.disabled = true; b.style.opacity = ".4"; }
+        });
+      });
+    } else {
+      box.querySelector("#sqSubmit").addEventListener("click", function(){
+        var v = box.querySelector("#sqInput").value;
+        var fb = box.querySelector("#sqFb");
+        if (isCorrect(v, sq.answers)) markCorrect();
+        else { fb.className = "feedback bad"; fb.textContent = "Not quite — try again, use the hint, or skip."; }
+      });
+    }
+  }
+
+  /* ---------- Golden Pizza Pass ---------- */
+  function pizzaState(teamId){
+    DB.pizza[teamId] = DB.pizza[teamId] || { found: {}, code: null, redeemed: false, pointsAwarded: false };
+    return DB.pizza[teamId];
+  }
+  function renderPizza(m, card, t, earned){
+    var st = pizzaState(t.id);
+    var foundCount = Object.keys(st.found).length;
+    var html = missionHeadHTML(m, earned) +
+      "<p class='muted'>Slices found: " + foundCount + "/6 · 5 pts per slice + a 20-point bonus when you redeem at " +
+      esc(H.pizzaRewardVenue) + "</p>";
+    DB.pizzaSlices.forEach(function(sl, i){
+      var found = !!st.found[i];
+      html += "<div class='slice-row" + (found ? " found" : "") + "'><div class='emoji'>" + sl.emoji + "</div>" +
+        "<div style='flex:1;'><strong>" + esc(sl.title) + "</strong><br><span class='muted'>" + esc(sl.description) + "</span>" +
+        (found ? "<br><span class='pill done'>✓ Found</span>" : "<div id='pz" + i + "'></div>") +
+        "</div></div>";
+    });
+    if (foundCount === 6 && !st.redeemed){
+      if (!st.code){
+        st.code = "PIZZA-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+        saveDB();
+      }
+      html += "<div class='voucher'>🍕 GOLDEN PIZZA PASS<br>" + esc(st.code) + "</div>" +
+        "<p class='center'>Show this code at " + esc(H.pizzaRewardVenue) + " to redeem your slice.</p>" +
+        "<button id='pzRedeem'>We redeemed our pass — claim " + (6 * H.pizzaPointsPerSlice + H.pizzaBonusPoints) + " pts</button>";
+    }
+    if (st.redeemed) html += "<p><span class='pill done'>✓ Pass redeemed — points landed!</span></p>";
+    card.innerHTML = html;
+    DB.pizzaSlices.forEach(function(sl, i){
+      if (st.found[i]) return;
+      var up = mountUploader(card.querySelector("#pz" + i), "image/*", "📷 Tap when you find it — snap a photo");
+      up._onchange = function(){
+        if (!up._urls.length) return;
+        st.found[i] = up._urls[0];
+        addSubmission({ teamId: t.id, missionId: m.id, kind: "pizza-slice", type: "Photo",
+          media: up._urls.slice(), text: "Pizza slice found: " + sl.title, points: 0,
+          meta: { completesMission: false } });
+        saveDB(); openMission(m.id);
+      };
+    });
+    var rb = card.querySelector("#pzRedeem");
+    if (rb) rb.addEventListener("click", function(){
+      st.redeemed = true; st.pointsAwarded = true;
+      var pts = 6 * H.pizzaPointsPerSlice + H.pizzaBonusPoints;
+      awardPoints(t, pts, "Mission: " + m.title + " (redeemed)");
+      addSubmission({ teamId: t.id, missionId: m.id, kind: "pizza", type: "Text", media: [],
+        text: "Golden Pizza Pass redeemed — code " + st.code + " at " + H.pizzaRewardVenue,
+        points: pts, meta: { completesMission: true } });
+      finishMission("Pass redeemed! +" + pts + " points (30 for the slices + a 20-point bonus).");
+    });
+  }
+
+  /* ---------- No Cap: video first, answers revealed, self-score ---------- */
+  function renderNoCap(m, card, t, earned){
+    var nc = m.nocap;
+    DB.nocap[t.id] = DB.nocap[t.id] || { videoSubmitted: false, scored: false };
+    var st = DB.nocap[t.id];
+    var html = missionHeadHTML(m, earned);
+    if (!st.videoSubmitted){
+      html += "<div id='upNC'></div><button id='ncSubmit' disabled>Submit video</button>";
+      card.innerHTML = html;
+      var up = mountUploader(card.querySelector("#upNC"), "video/*", "🎬 Tap to record or upload your one video");
+      up._onchange = function(){ card.querySelector("#ncSubmit").disabled = !up._urls.length; };
+      card.querySelector("#ncSubmit").addEventListener("click", function(){
+        st.videoSubmitted = true;
+        addSubmission({ teamId: t.id, missionId: m.id, kind: "video", type: "Video",
+          media: up._urls.slice(), text: "No Cap volunteer video", points: 0,
+          meta: { completesMission: false } });
+        saveDB(); openMission(m.id);
+      });
+      return;
+    }
+    if (!st.scored){
+      html += "<p><strong>✅ Video submitted! Here are the correct answers:</strong></p>" +
+        nc.answers.map(function(a){ return "<div class='notice-card'>" + esc(a) + "</div>"; }).join("") +
+        "<p><strong>How many did your volunteer get right?</strong></p>" +
+        "<div class='rowflex'>" + [0, 1, 2, 3].map(function(n){
+          return "<button class='small secondary' data-n='" + n + "'>" + n + " correct</button>";
+        }).join("") + "</div>";
+      card.innerHTML = html;
+      card.querySelectorAll("[data-n]").forEach(function(b){
+        b.addEventListener("click", function(){
+          var n = parseInt(b.getAttribute("data-n"), 10);
+          var pts = n * nc.pointsPerCorrect;
+          st.scored = true;
+          awardPoints(t, pts, "Mission: " + m.title + " (self-scored " + n + "/3)");
+          addSubmission({ teamId: t.id, missionId: m.id, kind: "nocap-score", type: "Text", media: [],
+            text: "No Cap self-score: volunteer answered " + n + " of 3 correctly",
+            points: pts, meta: { completesMission: true } });
+          finishMission("Self-scored: " + n + " of 3 correct — +" + pts + " points.");
+        });
+      });
+      return;
+    }
+    html += "<p class='muted'>Video submitted and self-scored. Your host can spot-check the video any time.</p>" +
+      submissionsFor(t.id, m.id).map(function(s){
+        return (s.media || []).map(function(u){ return mediaTag(u, "video"); }).join("");
+      }).join("");
+    card.innerHTML = html;
+  }
+
+  /* ---------- Dressed to Decline: WE'VE ARRIVED check-in + photo ---------- */
+  function renderCheckin(m, card, t, earned){
+    t.checkins = t.checkins || {};
+    var arrived = !!t.checkins[m.id];
+    var html = missionHeadHTML(m, earned);
+    if (m.hostBonus) html += "<p class='muted'>🏆 " + esc(m.hostBonus.label) + "</p>";
+    if (earned !== undefined){
+      html += "<p class='muted'>Your submission:</p>" +
+        submissionsFor(t.id, m.id).map(function(s){
+          return (s.media || []).map(function(u){ return mediaTag(u, s.type); }).join("");
+        }).join("");
+      card.innerHTML = html; return;
+    }
+    if (!arrived){
+      html += "<button id='arriveBtn' class='goldbtn'>📍 WE'VE ARRIVED</button>" +
+        "<p class='muted center'>Tap this when your team is at People &amp; Things, 17 N. Prince Street (2nd floor).</p>";
+      card.innerHTML = html;
+      card.querySelector("#arriveBtn").addEventListener("click", function(){
+        t.checkins[m.id] = nowISO(); saveDB(); openMission(m.id);
+      });
+      return;
+    }
+    html += "<p><span class='pill done'>✓ Checked in — WE'VE ARRIVED</span></p><div id='upCK'></div>" +
+      "<button id='ckSubmit' disabled>Submit photo — claim " + m.points + " pts</button>";
+    card.innerHTML = html;
+    var up = mountUploader(card.querySelector("#upCK"), "image/*", "📷 Tap to take or upload the outfit photo");
+    up._onchange = function(){ card.querySelector("#ckSubmit").disabled = !up._urls.length; };
+    card.querySelector("#ckSubmit").addEventListener("click", function(){
+      awardPoints(t, m.points, "Mission: " + m.title);
+      addSubmission({ teamId: t.id, missionId: m.id, kind: "photo", type: "Photo", media: up._urls.slice(),
+        text: "Checked in at People & Things (WE'VE ARRIVED)", points: m.points,
+        meta: { completesMission: true } });
+      finishMission("Submitted! +" + m.points + " points.");
+    });
+  }
+
+  /* ================================================================
+     SABOTAGE — player side
+     ================================================================ */
+  function renderSabotageBox(){
+    var box = document.getElementById("sabotageBox");
+    var t = myTeam();
+    if (!t){ box.innerHTML = ""; return; }
+    var sab = activeSabotageFor(t.id);
+    if (!sab){ box.innerHTML = ""; return; }
+    var doneCount = H.sabotageChallenges.filter(function(c){ return sab.proofs[c.key]; }).length;
+    var html = "<div class='sabotage'><h3>😱 YOU'VE BEEN SABOTAGED!</h3>" +
+      "<p><strong>Close Mouths Don't Get Fed</strong> — your missions are locked until you submit proof for all three challenges (" +
+      doneCount + "/3 done).</p>";
+    H.sabotageChallenges.forEach(function(c, ci){
+      html += "<div style='border-top:1px solid #e5b4b0; padding-top:10px; margin-top:10px;'>" +
+        "<p><strong>" + esc(c.label) + "</strong></p><p>" + esc(c.text) + "</p>";
+      if (sab.proofs[c.key]){
+        html += "<p><span class='pill done'>✓ Proof submitted</span></p>" + mediaTag(sab.proofs[c.key].url, c.proofType);
+      } else {
+        html += "<div id='sabUp" + ci + "'></div><button id='sabBtn" + ci + "' disabled>Submit proof</button>";
+      }
+      html += "</div>";
+    });
+    html += "</div>";
+    box.innerHTML = html;
+    H.sabotageChallenges.forEach(function(c, ci){
+      if (sab.proofs[c.key]) return;
+      var up = mountUploader(box.querySelector("#sabUp" + ci),
+        c.proofType === "video" ? "video/*" : "image/*",
+        c.proofType === "video" ? "🎬 Tap to record or upload your proof video" : "📷 Tap to take or upload your proof photo");
+      var btn = box.querySelector("#sabBtn" + ci);
+      up._onchange = function(){ btn.disabled = !up._urls.length; };
+      btn.addEventListener("click", function(){
+        sab.proofs[c.key] = { url: up._urls[0], type: c.proofType, ts: nowISO() };
+        addSubmission({ teamId: t.id, missionId: "sabotage", kind: "sabotage-proof", type: c.proofType,
+          media: up._urls.slice(), text: "Sabotage proof: " + c.label, points: 0,
+          meta: { completesMission: false } });
+        var all = H.sabotageChallenges.every(function(cc){ return sab.proofs[cc.key]; });
+        if (all){
+          sab.status = "completed"; sab.completedAt = nowISO();
+          saveDB();
+          alert("🎉 Sabotage complete! Your missions are unlocked again.");
+        }
+        saveDB(); renderMain();
+      });
+    });
+  }
+
+  /* ================================================================
+     ADMIN
+     ================================================================ */
+  document.getElementById("adminBtn").addEventListener("click", function(){
+    if (session.adminAuthed){ openAdmin(); return; }
+    var html = "<h2>Host Admin</h2><p class='muted'>Enter the admin password to open the Control Center.</p>" +
+      "<input type='password' id='admPw' autocomplete='off' placeholder='Admin password'>" +
+      "<div class='feedback' id='admFb'></div>" +
+      "<button id='admGo'>Open Admin</button><button class='ghost' id='admCancel'>Cancel</button>";
+    var box = openModal(html, true);
+    box.querySelector("#admCancel").addEventListener("click", closeModal);
+    box.querySelector("#admGo").addEventListener("click", function(){
+      if (box.querySelector("#admPw").value === DB.settings.adminPassword){
+        session.adminAuthed = true; saveSession(); closeModal(); openAdmin();
+      } else {
+        var fb = box.querySelector("#admFb");
+        fb.className = "feedback bad"; fb.textContent = "That password doesn't match.";
+      }
+    });
+  });
+  document.getElementById("adminExitBtn").addEventListener("click", function(){
+    if (session.unlocked) enterHunt(); else { refreshHeaders(); show("screen-welcome"); }
+  });
+
+  var ADMIN_TABS = [
+    { id: "live", label: "Live" }, { id: "review", label: "Review" },
+    { id: "points", label: "Points" }, { id: "missions", label: "Missions" },
+    { id: "bingo", label: "BINGO" }, { id: "pizza", label: "Pizza" },
+    { id: "announce", label: "Announce" }, { id: "events", label: "Events" },
+    { id: "startend", label: "Start & End" }
+  ];
+  function openAdmin(){
+    show("screen-admin");
+    var tabs = document.getElementById("adminTabs");
+    tabs.innerHTML = "";
+    ADMIN_TABS.forEach(function(tb){
+      var b = document.createElement("button");
+      b.textContent = tb.label;
+      b.className = tb.id === lastAdminTab ? "active" : "";
+      b.addEventListener("click", function(){
+        lastAdminTab = tb.id;
+        tabs.querySelectorAll("button").forEach(function(x){ x.classList.remove("active"); });
+        b.classList.add("active");
+        renderAdminTab(tb.id);
+      });
+      tabs.appendChild(b);
+    });
+    renderAdminTab(lastAdminTab);
+  }
+  function renderAdminTab(id){
+    lastAdminTab = id;
+    var body = document.getElementById("adminBody");
+    ({ live: renderAdminLive, review: renderAdminReview, points: renderAdminPoints,
+       missions: renderAdminMissions, bingo: renderAdminBingo, pizza: renderAdminPizza,
+       announce: renderAdminAnnounce, events: renderAdminEvents, startend: renderAdminStartEnd
+    })[id](body);
+  }
+  function missionName(id){
+    if (id === "sabotage") return "Sabotage";
+    var m = missionById(id); return m ? m.title : id;
+  }
+  function kindIcon(s){
+    if (s.kind === "photo" || s.kind === "pizza-slice") return "📷";
+    if (s.kind === "video" || s.kind === "sabotage-proof" && s.type === "video") return "🎬";
+    if (s.type === "Video") return "🎬";
+    return "✏️";
+  }
+  function timeLabel(ts){
+    var d = new Date(ts);
+    return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+
+  /* ---------- Admin: Live (sabotage control + feed) ---------- */
+  function renderAdminLive(body){
+    var active = DB.sabotages.filter(function(s){ return s.status === "active"; });
+    var html = "<div class='admin-card'><h3>Sabotage Control</h3>" +
+      "<p><strong>Close Mouths Don't Get Fed</strong></p>" +
+      "<p class='muted'>Pick a team — they get all three challenges, one upload each. An active sabotage locks the target team's missions until proof is submitted.</p>" +
+      "<label>Target team</label><select id='sabTeam'><option value=''>— pick a team —</option>" +
+      DB.teams.filter(function(t){ return !activeSabotageFor(t.id); }).map(function(t){
+        return "<option value='" + t.id + "'>" + esc(t.name) + "</option>";
+      }).join("") + "</select>" +
+      "<button id='sabDeliver' disabled>Deliver surprise sabotage</button>";
+    if (!active.length) html += "<p class='muted'>No active sabotages right now.</p>";
+    active.forEach(function(s){
+      var t = teamById(s.targetTeamId);
+      var n = H.sabotageChallenges.filter(function(c){ return s.proofs[c.key]; }).length;
+      html += "<div class='feed-item'><strong>" + esc(t ? t.name : "?") + "</strong> — sabotaged, proofs " + n + "/3 " +
+        "<button class='mini-btn danger-outline' data-cancelsab='" + s.id + "'>Cancel sabotage</button></div>";
+    });
+    html += "</div><div class='admin-card'><h3>Live Submissions</h3>" +
+      "<p class='muted'>Live · refreshes every 5s · showing latest 50</p>";
+    var feed = DB.submissions.slice().sort(function(a, b){ return a.ts < b.ts ? 1 : -1; }).slice(0, 50);
+    if (!feed.length) html += "<p class='muted'>No submissions yet.</p>";
+    feed.forEach(function(s){
+      var t = teamById(s.teamId);
+      html += "<div class='feed-item'>" + kindIcon(s) + " <strong>" + esc(t ? t.name : "?") + "</strong> — " +
+        esc(missionName(s.missionId)) + " · +" + s.points + " pts · " + timeLabel(s.ts) +
+        " <span class='pill'>" + esc(s.status) + "</span></div>";
+    });
+    html += "</div>";
+    body.innerHTML = html;
+    var sel = body.querySelector("#sabTeam"), del = body.querySelector("#sabDeliver");
+    sel.addEventListener("change", function(){ del.disabled = !sel.value; });
+    del.addEventListener("click", function(){
+      DB.sabotages.push({ id: uid("sab"), targetTeamId: sel.value, status: "active", ts: nowISO(), proofs: {} });
+      saveDB(); renderAdminTab("live");
+    });
+    body.querySelectorAll("[data-cancelsab]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var s = DB.sabotages.filter(function(x){ return x.id === b.getAttribute("data-cancelsab"); })[0];
+        if (s){ s.status = "cancelled"; saveDB(); renderAdminTab("live"); }
+      });
+    });
+  }
+
+  /* ---------- Admin: Review (media + ZIP + reset) ---------- */
+  var reviewFilter = "pending";
+  function renderAdminReview(body){
+    var html = "<div class='admin-card'><h3>📥 Download Media</h3>" +
+      "<p class='muted'>Points land the moment a team submits (self-report) — this tab is your oversight: check the media, mark submissions reviewed, and fix points on the Points tab if needed.</p>" +
+      "<button id='zipBtn'>Download All ZIP</button></div>" +
+      "<div class='admin-card'><h3>Submissions</h3><div class='filterrow'>" +
+      ["pending", "approved", "rejected", "all"].map(function(f){
+        return "<button data-f='" + f + "'" + (reviewFilter === f ? " class='active'" : "") + ">" +
+          f.charAt(0).toUpperCase() + f.slice(1) + "</button>";
+      }).join("") + "</div>";
+    var subs = DB.submissions.slice().sort(function(a, b){ return a.ts < b.ts ? 1 : -1; })
+      .filter(function(s){ return reviewFilter === "all" || s.status === reviewFilter; });
+    if (!subs.length) html += "<p class='muted'>Nothing here.</p>";
+    subs.forEach(function(s){
+      var t = teamById(s.teamId);
+      html += "<div class='feed-item'><strong>" + esc(t ? t.name : "?") + "</strong> — " + esc(missionName(s.missionId)) +
+        " · +" + s.points + " pts · " + timeLabel(s.ts) + " <span class='pill'>" + esc(s.status) + "</span>" +
+        (s.text ? "<br><span class='muted'>" + esc(s.text) + "</span>" : "") +
+        (s.media || []).map(function(u, mi){
+          return "<br><a href='" + u + "' download='submission_" + s.id + "_" + mi + "'>media " + (mi + 1) + " " +
+            (/^data:video/.test(u) ? "🎬" : "📷") + "</a> " + mediaTag(u, /^data:video/.test(u) ? "video" : "photo");
+        }).join("") +
+        "<br><button class='mini-btn' data-approve='" + s.id + "'>Approve</button>" +
+        "<button class='mini-btn danger-outline' data-reject='" + s.id + "'>Reject</button></div>";
+    });
+    html += "</div><div class='admin-card'><h3>Danger Zone</h3>" +
+      "<button class='danger' id='resetAllBtn'>Reset All Submissions &amp; Points</button></div>";
+    body.innerHTML = html;
+    body.querySelectorAll("[data-f]").forEach(function(b){
+      b.addEventListener("click", function(){ reviewFilter = b.getAttribute("data-f"); renderAdminTab("review"); });
+    });
+    body.querySelectorAll("[data-approve]").forEach(function(b){
+      b.addEventListener("click", function(){ setSubStatus(b.getAttribute("data-approve"), "approved"); });
+    });
+    body.querySelectorAll("[data-reject]").forEach(function(b){
+      b.addEventListener("click", function(){ setSubStatus(b.getAttribute("data-reject"), "rejected"); });
+    });
+    body.querySelector("#zipBtn").addEventListener("click", downloadAllZip);
+    body.querySelector("#resetAllBtn").addEventListener("click", function(){
+      if (!confirm("Reset ALL submissions and points for every team? This cannot be undone.")) return;
+      if (!confirm("Are you sure? Teams keep their names, but every point, submission, BINGO board, pizza pass and sabotage is cleared.")) return;
+      DB.submissions = []; DB.bingo = {}; DB.pizza = {}; DB.quiz = {}; DB.nocap = {}; DB.sabotages = [];
+      DB.teams.forEach(function(t){ t.points = 0; t.adjustments = []; t.checkins = {}; delete t.bookworm; });
+      saveDB(); renderAdminTab("review");
+    });
+  }
+  function setSubStatus(id, status){
+    var s = DB.submissions.filter(function(x){ return x.id === id; })[0];
+    if (s){ s.status = status; saveDB(); renderAdminTab("review"); }
+  }
+
+  /* ---------- Admin: Points ---------- */
+  function renderAdminPoints(body){
+    var html = "<div class='admin-card'><h3>Team Points</h3>" +
+      "<button class='secondary' id='csvBtn'>Export CSV</button>";
+    if (!DB.teams.length) html += "<p class='muted'>No teams yet.</p>";
+    DB.teams.forEach(function(t){
+      html += "<div class='feed-item'><strong>" + esc(t.name) + "</strong> — " +
+        missionsCompleted(t.id) + " missions done · <strong>" + t.points + " pts</strong><br>" +
+        [5, 10, 25].map(function(n){ return "<button class='mini-btn' data-adj='" + t.id + "|" + n + "'>+" + n + "</button>"; }).join("") +
+        [5, 10, 25].map(function(n){ return "<button class='mini-btn' data-adj='" + t.id + "|" + (-n) + "'>−" + n + "</button>"; }).join("") +
+        "<br><span class='rowflex'><input type='number' class='grow' id='custom_" + t.id + "' placeholder='Custom points'>" +
+        "<button class='mini-btn' data-custom='" + t.id + "|1'>Add</button>" +
+        "<button class='mini-btn' data-custom='" + t.id + "|-1'>Subtract</button></span>" +
+        "<button class='mini-btn danger-outline' data-delteam='" + t.id + "'>Delete Team</button></div>";
+    });
+    html += "</div>";
+    body.innerHTML = html;
+    body.querySelector("#csvBtn").addEventListener("click", function(){
+      var rows = [["Team", "Missions Completed", "Points"]];
+      rankedTeams().forEach(function(t){ rows.push([t.name, missionsCompleted(t.id), t.points]); });
+      var csv = rows.map(function(r){
+        return r.map(function(c){ return '"' + String(c).replace(/"/g, '""') + '"'; }).join(",");
+      }).join("\n");
+      downloadBlob(new Blob([csv], { type: "text/csv" }), "hunt-points.csv");
+    });
+    body.querySelectorAll("[data-adj]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var parts = b.getAttribute("data-adj").split("|");
+        adjustPoints(parts[0], parseInt(parts[1], 10), "Host quick adjustment");
+      });
+    });
+    body.querySelectorAll("[data-custom]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var parts = b.getAttribute("data-custom").split("|");
+        var v = parseInt(body.querySelector("#custom_" + parts[0]).value, 10);
+        if (!v || v <= 0) return;
+        adjustPoints(parts[0], v * parseInt(parts[1], 10), "Host custom adjustment");
+      });
+    });
+    body.querySelectorAll("[data-delteam]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var id = b.getAttribute("data-delteam");
+        var t = teamById(id);
+        if (!t || !confirm("Delete team '" + t.name + "' and all of its submissions and progress?")) return;
+        DB.teams = DB.teams.filter(function(x){ return x.id !== id; });
+        DB.submissions = DB.submissions.filter(function(x){ return x.teamId !== id; });
+        delete DB.bingo[id]; delete DB.pizza[id]; delete DB.quiz[id]; delete DB.nocap[id];
+        DB.sabotages = DB.sabotages.filter(function(x){ return x.targetTeamId !== id; });
+        if (session.teamId === id){ session.teamId = null; saveSession(); }
+        saveDB(); renderAdminTab("points");
+      });
+    });
+  }
+  function adjustPoints(teamId, pts, reason){
+    var t = teamById(teamId);
+    if (!t) return;
+    t.points += pts;
+    t.adjustments.push({ pts: pts, reason: reason, ts: nowISO(), auto: false });
+    saveDB(); renderAdminTab("points");
+  }
+  function downloadBlob(blob, filename){
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+
+  /* ---------- Admin: Missions ---------- */
+  function renderAdminMissions(body){
+    var html = "<div class='admin-card'><h3>" + DB.missions.length + " missions · drag to reorder</h3>" +
+      "<button id='addMissionBtn'>Add Mission</button>";
+    DB.missions.forEach(function(m, i){
+      html += "<div class='feed-item' draggable='true' data-drag='" + m.id + "'>" +
+        "<span class='drag-handle'>☰</span> <strong>" + (i + 1) + ". " + esc(m.title) + "</strong><br>" +
+        "<span class='muted'>" + esc(excerpt((m.body || []).join(" "), 90)) + "</span><br>" +
+        "<span class='pill pts'>☆ " + m.points + " pts</span> <span class='pill type'>" + esc(m.type) + "</span>" +
+        (m.restroom ? " <span class='pill gold'>Restroom</span>" : "") +
+        "<br><button class='mini-btn secondary' data-view='" + m.id + "'>👁 View</button>" +
+        "<button class='mini-btn secondary' data-edit='" + m.id + "'>✏️ Edit</button>" +
+        "<button class='mini-btn danger-outline' data-del='" + m.id + "'>🗑 Delete</button>" +
+        "<button class='mini-btn secondary' data-up='" + m.id + "'>↑ Up</button>" +
+        "<button class='mini-btn secondary' data-down='" + m.id + "'>↓ Down</button></div>";
+    });
+    html += "</div>";
+    body.innerHTML = html;
+    body.querySelector("#addMissionBtn").addEventListener("click", function(){
+      var m = { id: uid("m"), type: "Photo", control: "photo", title: "New Mission", points: 10,
+                body: ["Describe the mission here."] };
+      DB.missions.push(m); saveDB(); openMissionEditor(m.id);
+    });
+    body.querySelectorAll("[data-view]").forEach(function(b){
+      b.addEventListener("click", function(){ openMissionViewer(b.getAttribute("data-view")); });
+    });
+    body.querySelectorAll("[data-edit]").forEach(function(b){
+      b.addEventListener("click", function(){ openMissionEditor(b.getAttribute("data-edit")); });
+    });
+    body.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var m = missionById(b.getAttribute("data-del"));
+        if (m && confirm("Delete mission '" + m.title + "'?")){
+          DB.missions = DB.missions.filter(function(x){ return x.id !== m.id; });
+          saveDB(); renderAdminTab("missions");
+        }
+      });
+    });
+    /* ↑ / ↓ buttons — drag doesn't work on touch screens, these do */
+    body.querySelectorAll("[data-up]").forEach(function(b){
+      b.addEventListener("click", function(){ moveMission(b.getAttribute("data-up"), -1); });
+    });
+    body.querySelectorAll("[data-down]").forEach(function(b){
+      b.addEventListener("click", function(){ moveMission(b.getAttribute("data-down"), 1); });
+    });
+    /* drag to reorder */
+    var dragId = null;
+    body.querySelectorAll("[data-drag]").forEach(function(el){
+      el.addEventListener("dragstart", function(){ dragId = el.getAttribute("data-drag"); });
+      el.addEventListener("dragover", function(e){ e.preventDefault(); });
+      el.addEventListener("drop", function(e){
+        e.preventDefault();
+        var targetId = el.getAttribute("data-drag");
+        if (!dragId || dragId === targetId) return;
+        var from = missionIndex(dragId), to = missionIndex(targetId);
+        var moved = DB.missions.splice(from, 1)[0];
+        DB.missions.splice(to, 0, moved);
+        saveDB(); renderAdminTab("missions");
+      });
+    });
+  }
+  function moveMission(id, dir){
+    var i = missionIndex(id), j = i + dir;
+    if (i < 0 || j < 0 || j >= DB.missions.length) return;
+    var m = DB.missions.splice(i, 1)[0];
+    DB.missions.splice(j, 0, m);
+    saveDB(); renderAdminTab("missions");
+  }
+  function openMissionViewer(id){
+    var m = missionById(id);
+    if (!m) return;
+    var html = "<div class='smallcaps'>View full mission</div><h2>" + esc(m.title) + "</h2>" +
+      "<p><span class='pill pts'>☆ " + m.points + " pts</span> <span class='pill type'>" + esc(m.type) + "</span>" +
+      (m.restroom ? " <span class='pill gold'>Restroom</span>" : "") + "</p>" +
+      "<div class='smallcaps'>Full description</div>" +
+      (m.body || []).map(function(p){ return "<p>" + esc(p) + "</p>"; }).join("") +
+      "<button id='mvPreview'>Preview as participant</button>" +
+      "<button class='secondary' id='mvEdit'>Edit content</button>" +
+      "<button class='ghost' id='mvClose'>Close</button>";
+    var box = openModal(html, true);
+    box.querySelector("#mvClose").addEventListener("click", closeModal);
+    box.querySelector("#mvEdit").addEventListener("click", function(){ openMissionEditor(id); });
+    box.querySelector("#mvPreview").addEventListener("click", function(){
+      box.innerHTML = "<div class='smallcaps'>Participant preview</div>" +
+        "<div class='mission-head'><h2>" + esc(m.title) + "</h2>" +
+        "<span class='pill pts'>☆ " + m.points + " pts</span> <span class='pill type'>" + esc(m.type) + "</span></div>" +
+        (m.body || []).map(function(p){ return "<p>" + esc(p) + "</p>"; }).join("") +
+        "<button id='mvBack'>Back</button>";
+      box.querySelector("#mvBack").addEventListener("click", function(){ closeModal(); openMissionViewer(id); });
+    });
+  }
+  function openMissionEditor(id){
+    var m = missionById(id);
+    if (!m) return;
+    var controls = ["info", "photo", "photo2", "video", "quiz", "bingo", "pizza", "nocap", "checkin"];
+    var html = "<div class='smallcaps'>Edit mission</div><h2>" + esc(m.title) + "</h2>" +
+      "<label>Title</label><input type='text' id='meTitle' value='" + esc(m.title) + "'>" +
+      "<label>Points</label><input type='number' id='mePoints' value='" + m.points + "'>" +
+      "<label>Type pill</label><select id='meType'>" +
+      ["Text", "Photo", "Video"].map(function(tp){
+        return "<option" + (m.type === tp ? " selected" : "") + ">" + tp + "</option>";
+      }).join("") + "</select>" +
+      "<label>How it's completed</label><select id='meControl'>" +
+      controls.map(function(c){
+        return "<option value='" + c + "'" + (m.control === c ? " selected" : "") + ">" + c + "</option>";
+      }).join("") + "</select>" +
+      "<label>Description (one paragraph per line)</label>" +
+      "<textarea id='meBody' style='min-height:150px;'>" + esc((m.body || []).join("\n")) + "</textarea>" +
+      "<label><input type='checkbox' id='meRestroom' style='width:auto;' " + (m.restroom ? "checked" : "") + "> Restroom at this stop</label>" +
+      "<button id='meSave'>Save mission</button><button class='ghost' id='meCancel'>Cancel</button>" +
+      "<p class='muted'>Note: BINGO squares, pizza slices and quiz questions are edited in their own tabs (or in hunt-data.js before the event).</p>";
+    var box = openModal(html, true);
+    box.querySelector("#meCancel").addEventListener("click", closeModal);
+    box.querySelector("#meSave").addEventListener("click", function(){
+      m.title = box.querySelector("#meTitle").value.trim() || m.title;
+      m.points = parseInt(box.querySelector("#mePoints").value, 10) || 0;
+      m.type = box.querySelector("#meType").value;
+      m.control = box.querySelector("#meControl").value;
+      m.body = box.querySelector("#meBody").value.split("\n").map(function(s){ return s.trim(); }).filter(Boolean);
+      m.restroom = box.querySelector("#meRestroom").checked;
+      saveDB(); closeModal(); renderAdminTab("missions");
+    });
+  }
+
+  /* ---------- Admin: BINGO ---------- */
+  function renderAdminBingo(body){
+    var html = "<div class='admin-card'><h3>BINGO Squares</h3>";
+    DB.bingoSquares.forEach(function(sq, i){
+      html += "<div class='feed-item'><strong>" + (i + 1) + ". " + esc(sq.label) + "</strong><br>" +
+        "<span class='muted'>" + esc(sq.question) + "</span><br>" +
+        "Answer: <strong>" + esc((sq.answers || [])[0] || "") + "</strong> · Hint: " + (sq.hint ? "yes" : "no") +
+        "<br><button class='mini-btn secondary' data-bingoedit='" + i + "'>✏️ Edit</button></div>";
+    });
+    html += "</div><div class='admin-card'><h3>Reset BINGO for a team</h3>" +
+      "<label>Team</label><select id='bingoResetTeam'><option value=''>— pick a team —</option>" +
+      DB.teams.map(function(t){ return "<option value='" + t.id + "'>" + esc(t.name) + "</option>"; }).join("") +
+      "</select><button class='danger-outline' id='bingoResetBtn'>Reset selected team's BINGO</button></div>";
+    body.innerHTML = html;
+    body.querySelectorAll("[data-bingoedit]").forEach(function(b){
+      b.addEventListener("click", function(){ openBingoEditor(parseInt(b.getAttribute("data-bingoedit"), 10)); });
+    });
+    body.querySelector("#bingoResetBtn").addEventListener("click", function(){
+      var id = body.querySelector("#bingoResetTeam").value;
+      if (!id) return;
+      delete DB.bingo[id]; saveDB();
+      alert("BINGO reset for that team.");
+    });
+  }
+  function openBingoEditor(i){
+    var sq = DB.bingoSquares[i];
+    var html = "<div class='smallcaps'>Edit BINGO square " + (i + 1) + "</div>" +
+      "<label>Label</label><input type='text' id='beLabel' value='" + esc(sq.label) + "'>" +
+      "<label>Question</label><textarea id='beQ'>" + esc(sq.question) + "</textarea>" +
+      "<label>Accepted answers (comma-separated)</label><input type='text' id='beA' value='" + esc((sq.answers || []).join(", ")) + "'>" +
+      "<label>Hint</label><input type='text' id='beH' value='" + esc(sq.hint || "") + "'>" +
+      "<label>Multiple choices (optional, comma-separated)</label><input type='text' id='beC' value='" + esc((sq.choices || []).join(", ")) + "'>" +
+      "<button id='beSave'>Save square</button><button class='ghost' id='beCancel'>Cancel</button>";
+    var box = openModal(html, true);
+    box.querySelector("#beCancel").addEventListener("click", closeModal);
+    box.querySelector("#beSave").addEventListener("click", function(){
+      sq.label = box.querySelector("#beLabel").value.trim() || sq.label;
+      sq.question = box.querySelector("#beQ").value.trim();
+      sq.answers = box.querySelector("#beA").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+      sq.hint = box.querySelector("#beH").value.trim();
+      var ch = box.querySelector("#beC").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+      if (ch.length) sq.choices = ch; else delete sq.choices;
+      saveDB(); closeModal(); renderAdminTab("bingo");
+    });
+  }
+
+  /* ---------- Admin: Pizza ---------- */
+  function renderAdminPizza(body){
+    var html = "<div class='admin-card'><h3>Golden Pizza Pass Challenges</h3>" +
+      "<p class='muted'>" + H.pizzaPointsPerSlice + " pts per slice · " + H.pizzaBonusPoints +
+      " bonus for all six · reward at " + esc(H.pizzaRewardVenue) + ". Edit the six challenges below; availability is set in the Missions tab.</p>";
+    DB.pizzaSlices.forEach(function(sl, i){
+      html += "<div class='feed-item'><div class='rowflex'>" +
+        "<input type='text' id='pzEmoji" + i + "' value='" + esc(sl.emoji) + "' style='width:64px;flex:0 0 64px;font-size:20px;'>" +
+        "<input type='text' id='pzTitle" + i + "' class='grow' value='" + esc(sl.title) + "'></div>" +
+        "<textarea id='pzDesc" + i + "'>" + esc(sl.description) + "</textarea></div>";
+    });
+    html += "<button id='pzSave'>Save challenges</button></div>";
+    body.innerHTML = html;
+    body.querySelector("#pzSave").addEventListener("click", function(){
+      DB.pizzaSlices.forEach(function(sl, i){
+        sl.emoji = body.querySelector("#pzEmoji" + i).value.trim() || sl.emoji;
+        sl.title = body.querySelector("#pzTitle" + i).value.trim() || sl.title;
+        sl.description = body.querySelector("#pzDesc" + i).value.trim();
+      });
+      saveDB();
+      alert("Pizza challenges saved.");
+    });
+  }
+
+  /* ---------- Admin: Announce ---------- */
+  var announceType = "Info";
+  function renderAdminAnnounce(body){
+    var html = "<div class='admin-card'><h3>New Announcement</h3>" +
+      "<div class='seg'>" + ["Info", "Reminder", "Celebration"].map(function(tp){
+        return "<button data-atype='" + tp + "'" + (announceType === tp ? " class='active'" : "") + ">" +
+          tp + (tp === "Celebration" ? " 🎉" : "") + "</button>";
+      }).join("") + "</div>" +
+      "<label>Message</label><textarea id='annText' placeholder='Type your message to all teams...'></textarea>" +
+      "<label><input type='checkbox' id='annFull' style='width:auto;' checked> Full-screen pop-up (teams must tap Okay)</label>" +
+      "<button id='annSend'>Send to All Teams</button></div>" +
+      "<div class='admin-card' style='border-color:var(--bad);'><h3 style='color:var(--bad);'>Force Reset All Devices</h3>" +
+      "<p class='muted'>Clears the session on every device currently in the app and sends them back to the home screen. Use this to kick out old/deleted teams.</p>" +
+      "<button class='danger' id='forceResetBtn'>Force Reset All Devices</button></div>" +
+      "<div class='admin-card'><h3>Sent Announcements</h3>";
+    if (!DB.announcements.length) html += "<p class='muted'>None yet.</p>";
+    DB.announcements.slice().reverse().forEach(function(a){
+      html += "<div class='feed-item'><strong>" + esc(a.type) + "</strong> — " + esc(a.text) +
+        (a.hidden ? " <span class='pill'>hidden</span>" : "") +
+        "<br><button class='mini-btn secondary' data-hide='" + a.id + "'>" + (a.hidden ? "Show to teams" : "Hide from teams") + "</button>" +
+        "<button class='mini-btn danger-outline' data-delann='" + a.id + "'>Delete</button></div>";
+    });
+    html += "</div>";
+    body.innerHTML = html;
+    body.querySelectorAll("[data-atype]").forEach(function(b){
+      b.addEventListener("click", function(){ announceType = b.getAttribute("data-atype"); renderAdminTab("announce"); });
+    });
+    body.querySelector("#annSend").addEventListener("click", function(){
+      var text = body.querySelector("#annText").value.trim();
+      if (!text) return;
+      DB.announcements.push({ id: uid("ann"), type: announceType, text: text,
+        fullscreen: body.querySelector("#annFull").checked, hidden: false, ts: nowISO() });
+      saveDB(); renderAdminTab("announce");
+    });
+    body.querySelector("#forceResetBtn").addEventListener("click", function(){
+      if (!confirm("Force reset ALL devices? Every team is sent back to the home screen and must sign in and re-join.")) return;
+      DB.resetEpoch++; saveDB();
+      session = { unlocked: false, teamId: null, seenAnnouncements: [], resetEpoch: DB.resetEpoch };
+      saveSession();
+      refreshHeaders(); show("screen-welcome");
+    });
+    body.querySelectorAll("[data-hide]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var a = DB.announcements.filter(function(x){ return x.id === b.getAttribute("data-hide"); })[0];
+        if (a){ a.hidden = !a.hidden; saveDB(); renderAdminTab("announce"); }
+      });
+    });
+    body.querySelectorAll("[data-delann]").forEach(function(b){
+      b.addEventListener("click", function(){
+        DB.announcements = DB.announcements.filter(function(x){ return x.id !== b.getAttribute("data-delann"); });
+        saveDB(); renderAdminTab("announce");
+      });
+    });
+  }
+
+  /* ---------- Admin: Events ---------- */
+  function statusPill(st){
+    var now = st === "live" ? "<span class='pill live'>Now: Live</span>" :
+      st === "paused" ? "<span class='pill gold'>Now: Paused</span>" :
+      st === "ended" ? "<span class='pill'>Now: Completed</span>" :
+      "<span class='pill done'>Now: Open</span>";
+    var reg = (st === "open" || st === "live") ? "<span class='pill done'>Registration Open</span> " : "";
+    return reg + now;
+  }
+  function renderAdminEvents(body){
+    var s = DB.settings;
+    var html = "<div class='admin-card'><h3>" + esc(s.eventName) + "</h3>" +
+      "<p>" + statusPill(s.status) + "</p>" +
+      "<p>📅 " + esc(s.eventDateTimeLabel) + "</p>" +
+      "<p>🔑 Password: <strong>" + esc(s.guestPassword) + "</strong></p>" +
+      "<p class='muted'>" + esc(excerpt(s.welcomeMessage, 140)) + "</p>" +
+      "<div class='rowflex'>" +
+      "<button class='mini-btn secondary' id='evEdit'>Edit</button>" +
+      "<button class='mini-btn secondary' id='evOpen'>Open</button>" +
+      "<button class='mini-btn' id='evStart'>Start</button>" +
+      "<button class='mini-btn secondary' id='evPause'>Pause</button>" +
+      "<button class='mini-btn secondary' id='evEnd'>End</button>" +
+      "<button class='mini-btn secondary' id='evResetTest'>Reset Test</button>" +
+      "<button class='mini-btn danger-outline' id='evDelete'>Delete</button></div></div>" +
+      "<button id='evNew'>New Event</button>";
+    body.innerHTML = html;
+    function setStatus(st){ DB.settings.status = st; saveDB(); renderAdminTab("events"); }
+    body.querySelector("#evStart").addEventListener("click", function(){ setStatus("live"); });
+    body.querySelector("#evPause").addEventListener("click", function(){ setStatus("paused"); });
+    body.querySelector("#evEnd").addEventListener("click", function(){
+      if (confirm("End the hunt? Teams will see the closing screen with the top 3.")) setStatus("ended");
+    });
+    body.querySelector("#evOpen").addEventListener("click", function(){ setStatus("open"); });
+    body.querySelector("#evResetTest").addEventListener("click", function(){
+      if (!confirm("Reset test data? Clears all teams, submissions and points for this event.")) return;
+      DB.teams = []; DB.submissions = []; DB.bingo = {}; DB.pizza = {}; DB.quiz = {}; DB.nocap = {}; DB.sabotages = [];
+      saveDB(); renderAdminTab("events");
+    });
+    body.querySelector("#evDelete").addEventListener("click", function(){
+      if (!confirm("Delete this event and ALL of its data, and return to the hunt-data.js defaults? This cannot be undone.")) return;
+      localStorage.removeItem(DB_KEY);
+      DB = seedDB(); saveDB();
+      session = { unlocked: false, teamId: null, seenAnnouncements: [], resetEpoch: DB.resetEpoch };
+      saveSession(); renderAdminTab("events");
+    });
+    body.querySelector("#evNew").addEventListener("click", function(){
+      if (!confirm("Start a NEW event? This clears the current event's teams and data and opens a fresh event for you to set up.")) return;
+      var keepSettings = DB.settings;
+      DB = seedDB();
+      DB.settings.adminPassword = keepSettings.adminPassword;
+      saveDB();
+      session = { unlocked: false, teamId: null, seenAnnouncements: [], resetEpoch: DB.resetEpoch };
+      saveSession(); openEventEditor();
+    });
+    body.querySelector("#evEdit").addEventListener("click", openEventEditor);
+  }
+  function openEventEditor(){
+    var s = DB.settings;
+    var html = "<div class='smallcaps'>Edit event</div>" +
+      "<label>Event name</label><input type='text' id='eeName' value='" + esc(s.eventName) + "'>" +
+      "<label>Date label</label><input type='text' id='eeDate' value='" + esc(s.eventDateLabel) + "'>" +
+      "<label>Date &amp; time label</label><input type='text' id='eeDateTime' value='" + esc(s.eventDateTimeLabel) + "'>" +
+      "<label>Welcome message</label><textarea id='eeWelcome'>" + esc(s.welcomeMessage) + "</textarea>" +
+      "<button id='eeSave'>Save event</button><button class='ghost' id='eeCancel'>Cancel</button>";
+    var box = openModal(html, true);
+    box.querySelector("#eeCancel").addEventListener("click", closeModal);
+    box.querySelector("#eeSave").addEventListener("click", function(){
+      s.eventName = box.querySelector("#eeName").value.trim() || s.eventName;
+      s.eventDateLabel = box.querySelector("#eeDate").value.trim();
+      s.eventDateTimeLabel = box.querySelector("#eeDateTime").value.trim();
+      s.welcomeMessage = box.querySelector("#eeWelcome").value.trim();
+      saveDB(); closeModal(); refreshHeaders(); renderAdminTab("events");
+    });
+  }
+
+  /* ---------- Admin: Start & End ---------- */
+  function toLocalInput(iso){
+    var d = new Date(iso), pad = function(n){ return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+      "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function renderAdminStartEnd(body){
+    var s = DB.settings;
+    var mins = Math.round((new Date(s.endTimeISO) - new Date(s.startTimeISO)) / 60000);
+    var durLabel = Math.floor(mins / 60) + "h " + (mins % 60) + "m";
+    var statusLine = s.status === "ended" ? "Your Experience is ended" :
+      s.status === "live" ? "Your Experience is live" :
+      s.status === "paused" ? "Your Experience is paused" : "Your Experience is open for registration";
+    var html = "<div class='admin-card'><h3>Start &amp; End</h3>" +
+      "<p class='muted'>Publishing times are based on Experience time zone: Eastern Standard Time (GMT-5)</p>" +
+      "<p><strong>" + statusLine + "</strong></p>" +
+      "<label>Start time</label><input type='datetime-local' id='seStart' value='" + toLocalInput(s.startTimeISO) + "'>" +
+      "<label>End time</label><input type='datetime-local' id='seEnd' value='" + toLocalInput(s.endTimeISO) + "'>" +
+      "<p class='muted'>Live for " + durLabel + " total.</p>" +
+      "<button id='seSave'>Save times</button>" +
+      "<button class='secondary' id='seReset'>Reset Start &amp; End times</button></div>" +
+      "<div class='admin-card'><h3>Guest Password</h3>" +
+      "<p class='muted'>Guests type this password on the welcome screen to enter " + esc(s.eventName) +
+      ". Change it here any time — it takes effect immediately for anyone entering.</p>" +
+      "<label>New Password</label><input type='text' id='seGuestPw' value='" + esc(s.guestPassword) + "'>" +
+      "<button id='seGuestBtn'>Update Password</button></div>" +
+      "<div class='admin-card'><h3>Admin Password</h3>" +
+      "<p class='muted'>This is the password for the Admin button — your host controls.</p>" +
+      "<label>New Admin Password</label><input type='text' id='seAdminPw' value='" + esc(s.adminPassword) + "'>" +
+      "<button id='seAdminBtn'>Update Admin Password</button></div>";
+    body.innerHTML = html;
+    body.querySelector("#seSave").addEventListener("click", function(){
+      var st = body.querySelector("#seStart").value, en = body.querySelector("#seEnd").value;
+      if (st) s.startTimeISO = new Date(st).toISOString();
+      if (en) s.endTimeISO = new Date(en).toISOString();
+      s.eventDateTimeLabel = new Date(s.startTimeISO).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" }) +
+        " at " + new Date(s.startTimeISO).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) +
+        " · " + Math.round((new Date(s.endTimeISO) - new Date(s.startTimeISO)) / 60000) + " min";
+      saveDB(); renderAdminTab("startend");
+    });
+    body.querySelector("#seReset").addEventListener("click", function(){
+      var end = new Date(H.startTimeISO).getTime() + (H.durationMinutes || 100) * 60000;
+      s.startTimeISO = H.startTimeISO; s.endTimeISO = new Date(end).toISOString();
+      saveDB(); renderAdminTab("startend");
+    });
+    body.querySelector("#seGuestBtn").addEventListener("click", function(){
+      var v = body.querySelector("#seGuestPw").value.trim();
+      if (!v) return;
+      s.guestPassword = v; saveDB();
+      alert("Guest password updated — it takes effect immediately.");
+    });
+    body.querySelector("#seAdminBtn").addEventListener("click", function(){
+      var v = body.querySelector("#seAdminPw").value.trim();
+      if (!v) return;
+      s.adminPassword = v; saveDB();
+      alert("Admin password updated.");
+    });
+  }
+
+  /* ================================================================
+     DOWNLOAD ALL MEDIA AS ONE ZIP (store-method ZIP, no library)
+     ================================================================ */
+  function crc32(bytes){
+    if (!crc32.table){
+      crc32.table = [];
+      for (var n = 0; n < 256; n++){
+        var c = n;
+        for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+        crc32.table[n] = c >>> 0;
+      }
+    }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) crc = crc32.table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  function dataUrlBytes(u){
+    var parts = u.split(",");
+    var bin = atob(parts[1] || "");
+    var arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return arr;
+  }
+  function extFor(u){
+    if (/^data:image\/png/.test(u)) return "png";
+    if (/^data:image\/webp/.test(u)) return "webp";
+    if (/^data:video\/mp4/.test(u)) return "mp4";
+    if (/^data:video\/quicktime/.test(u)) return "mov";
+    if (/^data:video/.test(u)) return "webm";
+    return "jpg";
+  }
+  function safeName(s){ return (s || "file").replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").slice(0, 40) || "file"; }
+  function buildZip(files){
+    var enc = new TextEncoder();
+    var chunks = [], central = [], offset = 0;
+    var d = new Date();
+    var dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    var dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    files.forEach(function(f){
+      var name = enc.encode(f.name);
+      var crc = crc32(f.bytes), size = f.bytes.length;
+      var local = new DataView(new ArrayBuffer(30));
+      local.setUint32(0, 0x04034b50, true); local.setUint16(4, 20, true);
+      local.setUint16(6, 0x0800, true); local.setUint16(8, 0, true);
+      local.setUint16(10, dosTime, true); local.setUint16(12, dosDate, true);
+      local.setUint32(14, crc, true); local.setUint32(18, size, true); local.setUint32(22, size, true);
+      local.setUint16(26, name.length, true); local.setUint16(28, 0, true);
+      chunks.push(new Uint8Array(local.buffer), name, f.bytes);
+      var cen = new DataView(new ArrayBuffer(46));
+      cen.setUint32(0, 0x02014b50, true); cen.setUint16(4, 20, true); cen.setUint16(6, 20, true);
+      cen.setUint16(8, 0x0800, true); cen.setUint16(10, 0, true);
+      cen.setUint16(12, dosTime, true); cen.setUint16(14, dosDate, true);
+      cen.setUint32(16, crc, true); cen.setUint32(20, size, true); cen.setUint32(24, size, true);
+      cen.setUint16(28, name.length, true); cen.setUint32(42, offset, true);
+      central.push(new Uint8Array(cen.buffer), name);
+      offset += 30 + name.length + size;
+    });
+    var centralSize = central.reduce(function(s, c){ return s + c.length; }, 0);
+    var end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true);
+    end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, centralSize, true); end.setUint32(16, offset, true);
+    return new Blob(chunks.concat(central, [new Uint8Array(end.buffer)]), { type: "application/zip" });
+  }
+  function downloadAllZip(){
+    var files = [], used = {};
+    function addFile(name, url){
+      if (!url || url.indexOf("data:") !== 0) return;
+      var base = name, i = 2;
+      while (used[name]) name = base + "_" + (i++);
+      used[name] = true;
+      files.push({ name: name, bytes: dataUrlBytes(url) });
+    }
+    DB.teams.forEach(function(t){
+      if (t.photo) addFile(safeName(t.name) + "_team-photo." + extFor(t.photo), t.photo);
+    });
+    DB.submissions.forEach(function(s){
+      var t = teamById(s.teamId);
+      (s.media || []).forEach(function(u, mi){
+        addFile(safeName(t ? t.name : "team") + "_" + safeName(missionName(s.missionId)) + "_" +
+          s.id.slice(-5) + "_" + (mi + 1) + "." + extFor(u), u);
+      });
+    });
+    if (!files.length){ alert("No media to download yet."); return; }
+    downloadBlob(buildZip(files), "hunt-media.zip");
+  }
+
+  /* ================================================================
+     LIVE REFRESH + INIT
+     ================================================================ */
+  setInterval(function(){
+    /* pick up changes made in another tab on this device */
+    try{
+      var raw = localStorage.getItem(DB_KEY);
+      if (raw){
+        var fresh = JSON.parse(raw);
+        if (fresh && fresh.version === 2 && JSON.stringify(fresh) !== JSON.stringify(DB)) DB = fresh;
+      }
+    }catch(e){}
+    checkResetEpoch();
+    if (currentScreen === "screen-main"){
+      refreshHeaders();
+      renderSabotageBox();
+      renderMissionList();
+      if (mainPage === "board") renderBoard();   // scoreboard refresh (spec: every 8s)
+      if (!modalRoot.innerHTML) maybeShowAnnouncements();
+    }
+    if (currentScreen === "screen-admin" && lastAdminTab === "live"){
+      var ae = document.activeElement;
+      if (!ae || (ae.tagName !== "SELECT" && ae.tagName !== "INPUT" && ae.tagName !== "TEXTAREA"))
+        renderAdminTab("live");                  // live feed refresh (spec: every 5s)
+    }
+    if (DB.settings.status === "ended" && currentScreen === "screen-main"){
+      renderClosed(); show("screen-closed");
+    }
+  }, 5000);
+
+  checkResetEpoch();
+  refreshHeaders();
+  if (session.unlocked) enterHunt();
+  else show("screen-welcome");
+})();
+</script>
+</body>
+</html>

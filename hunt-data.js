@@ -16,11 +16,11 @@ window.HUNT = {
 
   /* ---- Event settings ---- */
   eventName: "Lancaster City Scavenger Hunt",
-  eventDateLabel: "Saturday, November 28, 2026",
-  eventDateTimeLabel: "Saturday, November 28, 2026 at 12:00 PM · 100 min",
-  startTimeISO: "2026-11-28T12:00:00",   // hunt start (Eastern)
+  eventDateLabel: "Sunday, November 29, 2026",
+  eventDateTimeLabel: "Sunday, November 29, 2026 at 12:00 PM · 100 min",
+  startTimeISO: "2026-11-29T12:00:00",   // hunt start (Eastern)
   durationMinutes: 100,
-  password: "112826",              // guest access code teams type to enter (tip: event date, MMDDYY)
+  password: "112926",              // guest access code teams type to enter (tip: event date, MMDDYY)
   adminPassword: "Ule$2027!",      // host password for the Admin button — set by Kendra Nov 26, 2026
   welcomeMessage: "Welcome to your Lancaster City Scavenger Hunt! Get your team ready to explore, earn, and discover.",
   hostPhoneDisplay: "(717) 925-0891",

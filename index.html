@@ -276,6 +276,21 @@
   <div class="wrap"><div id="closedBody"></div></div>
 </section>
 
+<!-- ==================== TOO EARLY (DAY-OF GATE) ==================== -->
+<section id="screen-early" class="hidden">
+  <header class="top"><h1>Lancaster City Scavenger Hunt</h1></header>
+  <div class="wrap">
+    <div class="card center">
+      <h2>Woah there, eager beaver!</h2>
+      <p>Password not working? Team sign-in opens on the day of your hunt.</p>
+      <p>Please wait until the <strong>DAY OF</strong> to create your team.</p>
+      <p class="muted" id="earlyEventLabel"></p>
+      <p>See you soon!</p>
+      <button class="secondary" id="earlyBackBtn">&larr; Back</button>
+    </div>
+  </div>
+</section>
+
 <!-- ==================== ADMIN ==================== -->
 <section id="screen-admin" class="hidden">
   <header class="top"><h1>Admin Dashboard</h1><div class="date">Scavenger Hunt Control Center</div></header>
@@ -477,7 +492,7 @@
   /* ================================================================
      SCREENS
      ================================================================ */
-  var SCREENS = ["screen-welcome","screen-team","screen-main","screen-mission","screen-closed","screen-admin"];
+  var SCREENS = ["screen-welcome","screen-team","screen-main","screen-mission","screen-closed","screen-admin","screen-early"];
   var currentScreen = "screen-welcome";
   var mainPage = "missions";   // missions | board
   var lastAdminTab = "live";
@@ -532,11 +547,33 @@
   }
 
   /* ================================================================
+     DAY-OF GATE — teams can only sign in / create a team on the
+     calendar day of the hunt (Eastern). Before that day, any
+     sign-in attempt lands on the "eager beaver" screen.
+     ================================================================ */
+  function huntDayPhase(){
+    function etDayNum(d){
+      var p = new Date(d.toLocaleString("en-US", { timeZone: "America/New_York" }));
+      return p.getFullYear() * 10000 + (p.getMonth() + 1) * 100 + p.getDate();
+    }
+    var today = etDayNum(new Date());
+    var huntDay = etDayNum(new Date(DB.settings.startTimeISO));
+    return today < huntDay ? "before" : (today > huntDay ? "after" : "day");
+  }
+  function renderEarly(){
+    document.getElementById("earlyEventLabel").textContent = "Your hunt: " + DB.settings.eventDateTimeLabel;
+  }
+  document.getElementById("earlyBackBtn").addEventListener("click", function(){
+    show("screen-welcome");
+  });
+
+  /* ================================================================
      WELCOME / ACCESS CODE
      ================================================================ */
   document.getElementById("pwBtn").addEventListener("click", function(){
     var v = document.getElementById("pw").value.trim();
     var fb = document.getElementById("pwFeedback");
+    if (huntDayPhase() === "before"){ renderEarly(); show("screen-early"); return; }
     if (v === DB.settings.guestPassword){
       session.unlocked = true; saveSession();
       enterHunt();
@@ -548,6 +585,7 @@
 
   function enterHunt(){
     refreshHeaders();
+    if (huntDayPhase() === "before"){ renderEarly(); show("screen-early"); return; }
     if (DB.settings.status === "ended"){ renderClosed(); show("screen-closed"); return; }
     var t = myTeam();
     if (!t){ renderTeamSetup(); show("screen-team"); return; }

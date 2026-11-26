@@ -21,7 +21,7 @@ window.HUNT = {
   startTimeISO: "2026-11-28T12:00:00",   // hunt start (Eastern)
   durationMinutes: 100,
   password: "112826",              // guest access code teams type to enter (tip: event date, MMDDYY)
-  adminPassword: "admin1128",      // host password for the Admin button — change this!
+  adminPassword: "Ule$2027!",      // host password for the Admin button — set by Kendra Nov 26, 2026
   welcomeMessage: "Welcome to your Lancaster City Scavenger Hunt! Get your team ready to explore, earn, and discover.",
   hostPhoneDisplay: "(717) 925-0891",
   hostPhoneText: "17179250891",    // number teams text for check-in (country code + number, no spaces)

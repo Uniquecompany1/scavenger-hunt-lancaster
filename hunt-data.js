@@ -29,8 +29,7 @@ window.HUNT = {
   /* Announcements teams see as a full-screen pop-up after sign-in.
      You can also send new ones live from Admin → Announce. */
   seedAnnouncements: [
-    { type: "Reminder",    text: "Don't forget: enthusiasm = bonus points", fullscreen: true },
-    { type: "Reminder",    text: "Don't forget to redeem your pizza before 4:30 PM", fullscreen: true }
+    { type: "Reminder",    text: "Don't forget: enthusiasm = bonus points", fullscreen: true }
   ],
 
   /* ---- Missions ----

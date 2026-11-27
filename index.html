@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lancaster City Scavenger Hunt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#16324f; --navy2:#0f2438; --pale:#e9f1f8; --pale2:#d7e5f2;
@@ -182,6 +185,125 @@
   .team-photo-preview{width:100%; border-radius:12px; margin-top:10px;}
   .admin-link{position:fixed; right:12px; bottom:76px; z-index:15; width:auto; padding:9px 15px;
     font-size:13.5px; background:rgba(22,50,79,.85); border-radius:999px; margin:0;}
+
+  /* ================= FUN THEME — guest screens only (admin untouched) ================= */
+  #screen-welcome, #screen-team, #screen-main, #screen-mission, #screen-closed, #screen-early{
+    --navy:#43225e; --navy2:#331743; --pale:#ffe9c9; --pale2:#ffd9a0;
+    --ink:#33231b; --muted:#96755e; --card:#fffdf7; --line:#f2d5ae;
+    --gold:#ffb627; --goldbg:#fff0c4; --good:#0e9f6e; --bad:#e5484d;
+    --coral:#ff5964; --teal:#12b5a5; --sky:#4ea8ff; --plum:#7b2cbf;
+    font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(rgba(255,182,39,.20) 1.6px, transparent 1.7px) 0 0/24px 24px,
+      linear-gradient(180deg,#fff7ea 0%, #ffedd0 100%);
+  }
+  #screen-welcome h1, #screen-welcome .company, #screen-team h2, #screen-main h2,
+  #screen-mission h2, #screen-closed h2, #screen-early h2,
+  #screen-team header.top h1, #screen-main header.top h1, #screen-mission header.top h1,
+  #screen-closed header.top h1, #screen-early header.top h1{
+    font-family:"Fredoka","Nunito",sans-serif;
+  }
+  #screen-team header.top, #screen-main header.top, #screen-mission header.top,
+  #screen-closed header.top, #screen-early header.top{
+    background:linear-gradient(135deg,#43225e,#7b2cbf);
+  }
+  #screen-welcome button, #screen-team button, #screen-main button,
+  #screen-mission button, #screen-closed button, #screen-early button{
+    box-shadow:0 4px 0 rgba(51,23,67,.85);
+    font-family:"Fredoka","Nunito",sans-serif; letter-spacing:.01em;
+    transition:transform .07s ease, box-shadow .07s ease;
+  }
+  #screen-welcome button:active, #screen-team button:active, #screen-main button:active,
+  #screen-mission button:active, #screen-closed button:active, #screen-early button:active{
+    transform:translateY(3px); box-shadow:0 1px 0 rgba(51,23,67,.85);
+  }
+  #screen-main .bottomnav button, #screen-team .seg button, button.ghost{ box-shadow:none !important; }
+  button.ghost:active{ transform:none; }
+  #pwBtn{ background:linear-gradient(135deg,#ff5964,#ff8a5c); box-shadow:0 5px 0 #c22e3d; font-size:18.5px; }
+  #pwBtn:active{ box-shadow:0 1px 0 #c22e3d; }
+  #teamBtn{ background:linear-gradient(135deg,#12b5a5,#0e9f6e); box-shadow:0 5px 0 #0b6e4f; }
+  #teamBtn:active{ box-shadow:0 1px 0 #0b6e4f; }
+
+  /* welcome — slideshow, burst badge, ticket card */
+  #screen-welcome .logo-tile{ background:linear-gradient(135deg,#ff5964,#ffb627); transform:rotate(-5deg);
+    border-radius:20px; font-family:"Fredoka",sans-serif; box-shadow:0 6px 16px rgba(255,89,100,.4); }
+  .slides{ position:relative; border-radius:22px; overflow:hidden; aspect-ratio:16/10; margin:14px 0 4px;
+    box-shadow:0 12px 28px rgba(67,34,94,.30); border:3px solid #fff; background:#e8dcc8; }
+  .slides img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;
+    animation:slidefade 24s linear infinite; }
+  .slides img:nth-child(2){ animation-delay:6s; }
+  .slides img:nth-child(3){ animation-delay:12s; }
+  .slides img:nth-child(4){ animation-delay:18s; }
+  @keyframes slidefade{ 0%{opacity:0; transform:scale(1.02);} 3%{opacity:1;} 25%{opacity:1;} 28.5%{opacity:0;} 100%{opacity:0; transform:scale(1.09);} }
+  .slides .slide-cap{ position:absolute; left:10px; bottom:10px; z-index:3; background:rgba(51,23,67,.80); color:#fff;
+    font-family:"Fredoka",sans-serif; font-size:13.5px; font-weight:600; padding:5px 13px; border-radius:999px; }
+  .burst-wrap{ position:relative; height:0; z-index:5; }
+  .burst{ position:absolute; right:4px; top:-48px; width:106px; height:106px; background:var(--gold);
+    clip-path:polygon(100% 50%, 84.7% 59.8%, 90.5% 74.3%, 76.4% 76.4%, 74.3% 90.5%, 59.8% 84.7%, 50% 100%, 40.2% 84.7%, 25.7% 90.5%, 23.6% 76.4%, 9.5% 74.3%, 15.3% 59.8%, 0% 50%, 15.3% 40.2%, 9.5% 25.7%, 23.6% 23.6%, 25.7% 9.5%, 40.2% 15.3%, 50% 0%, 59.8% 15.3%, 74.3% 9.5%, 76.4% 23.6%, 90.5% 25.7%, 84.7% 40.2%);
+    animation:burstspin 26s linear infinite; }
+  @keyframes burstspin{ to{ transform:rotate(360deg); } }
+  .burst-label{ position:absolute; right:4px; top:-48px; width:106px; height:106px; display:flex; align-items:center;
+    justify-content:center; text-align:center; font-family:"Fredoka",sans-serif; font-weight:700; font-size:12.5px;
+    line-height:1.2; color:#5c4300; padding:16px; transform:rotate(-8deg); }
+  .ticket{ border:2.5px dashed #e8a33d !important; border-radius:18px !important;
+    box-shadow:0 10px 24px rgba(67,34,94,.15); }
+  .fun-title{ font-size:40px !important; line-height:1.06; transform:rotate(-1.2deg);
+    background:linear-gradient(92deg,#ff5964 5%,#7b2cbf 58%,#12b5a5 105%);
+    -webkit-background-clip:text; background-clip:text; color:transparent !important; }
+
+  /* scorebar + points pop */
+  #screen-main .scorebar{ background:#fffdf7; border-bottom:3px solid var(--gold); }
+  #scoreNow{ display:inline-block; font-family:"Fredoka",sans-serif; font-size:19px; }
+  #scoreNow.pop{ animation:scorepop .55s ease; }
+  @keyframes scorepop{ 35%{ transform:scale(1.45) rotate(-4deg); color:#ff5964; } }
+
+  /* adventure trail */
+  .trail{ background:#fffdf7; border:2px solid var(--line); border-radius:16px; padding:12px 14px;
+    margin:12px 0 2px; box-shadow:0 3px 10px rgba(67,34,94,.07); }
+  .trail .tlabel{ font-family:"Fredoka",sans-serif; font-weight:600; color:var(--navy); font-size:15.5px; margin-bottom:9px; }
+  .trail .dots{ display:flex; gap:5px; flex-wrap:wrap; }
+  .trail .dot{ width:20px; height:20px; border-radius:50%; border:2.5px solid #e8cfa5; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; font-weight:900; }
+  .trail .dot.done{ border-color:transparent; }
+
+  /* mission cards — rotating colors + passport stamp */
+  #screen-main .mission-card{ border-radius:18px; border:2px solid var(--line); position:relative; overflow:hidden;
+    box-shadow:0 3px 10px rgba(67,34,94,.08); }
+  #screen-main .mission-card .num{ border-radius:13px; font-family:"Fredoka",sans-serif; }
+  #missionList .mission-card:nth-child(5n+1) .num{ background:#ff5964; }
+  #missionList .mission-card:nth-child(5n+2) .num{ background:#12b5a5; }
+  #missionList .mission-card:nth-child(5n+3) .num{ background:#ffb627; color:#5c4300; }
+  #missionList .mission-card:nth-child(5n+4) .num{ background:#4ea8ff; }
+  #missionList .mission-card:nth-child(5n+5) .num{ background:#7b2cbf; }
+  #missionList .mission-card.done .num{ background:#0e9f6e; color:#fff; }
+  .stamp{ position:absolute; right:10px; top:10px; transform:rotate(-11deg); border:3px solid #ff5964; color:#ff5964;
+    font-family:"Fredoka",sans-serif; font-weight:700; font-size:12px; letter-spacing:.13em; padding:3px 9px;
+    border-radius:8px; background:rgba(255,255,255,.85); text-transform:uppercase; pointer-events:none; }
+  .big-stamp{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:9998; pointer-events:none; }
+  .big-stamp span{ border:6px solid #ff5964; color:#ff5964; background:rgba(255,253,247,.92);
+    font-family:"Fredoka",sans-serif; font-weight:700; font-size:42px; letter-spacing:.1em; padding:10px 26px;
+    border-radius:16px; text-transform:uppercase; animation:stampin 1.5s cubic-bezier(.2,2.2,.4,1) both; }
+  @keyframes stampin{ 0%{ transform:scale(2.6) rotate(-24deg); opacity:0; } 18%{ transform:scale(1) rotate(-11deg); opacity:1; }
+    78%{ transform:scale(1) rotate(-11deg); opacity:1; } 100%{ transform:scale(1.05) rotate(-11deg); opacity:0; } }
+
+  /* team icon picker */
+  .icon-row{ display:flex; gap:9px; flex-wrap:wrap; margin:4px 0 6px; }
+  .icon-pick{ width:52px !important; height:52px; padding:0 !important; margin:0 !important; font-size:26px;
+    border-radius:16px; background:#fff !important; border:2.5px solid var(--line); box-shadow:none !important;
+    display:flex; align-items:center; justify-content:center; }
+  .icon-pick.sel{ border-color:#ff5964; background:#fff0f1 !important; transform:scale(1.1); }
+
+  /* finale certificate */
+  .cert{ background:linear-gradient(180deg,#fffdf7,#fff6e0); border:3px solid var(--gold);
+    outline:2px dashed #e8a33d; outline-offset:-9px; border-radius:14px; padding:24px 18px;
+    text-align:center; margin:16px 0; }
+  .cert h3{ font-family:"Fredoka",sans-serif; color:var(--navy); margin:2px 0 6px; font-size:24px; }
+  .cert .cert-icon{ font-size:46px; line-height:1.1; }
+  .cert img{ border-radius:12px; margin:10px auto; max-height:230px; }
+
+  #screen-early h2{ display:inline-block; animation:wiggle 2.4s ease-in-out infinite; }
+  @keyframes wiggle{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-2.2deg); } 75%{ transform:rotate(2.2deg); } }
+  #confettiCanvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
 </style>
 </head>
 <body>
@@ -192,8 +314,16 @@
     <div class="logo-tile">L</div>
     <div class="company">LANCASTER CITY</div>
     <div class="company-sub">SCAVENGER HUNT</div>
-    <div class="card">
-      <h1>The Team Adventure</h1>
+    <div class="slides" aria-hidden="true">
+      <img src="img/slide-1.jpg" alt="">
+      <img src="img/slide-2.jpg" alt="">
+      <img src="img/slide-3.jpg" alt="">
+      <img src="img/slide-4.jpg" alt="">
+      <div class="slide-cap">📍 Real Lancaster adventures</div>
+    </div>
+    <div class="burst-wrap"><div class="burst"></div><div class="burst-label" id="burstLabel">545 POINTS UP FOR GRABS!</div></div>
+    <div class="card ticket">
+      <h1 class="fun-title">The Team Adventure</h1>
       <p class="tagline">Complete missions, earn points, and build the biggest score in Lancaster.</p>
       <p class="muted center" id="welcomeMsg"></p>
       <label for="pw">Hunt access code</label>
@@ -220,6 +350,15 @@
       <div id="newTeamBox">
         <label for="teamName">Team Name</label>
         <input type="text" id="teamName" autocomplete="off" placeholder="Team Name">
+        <label>Pick your team icon</label>
+        <div class="icon-row" id="iconRow">
+          <button type="button" class="icon-pick sel" data-icon="🥨">🥨</button>
+          <button type="button" class="icon-pick" data-icon="⭐">⭐</button>
+          <button type="button" class="icon-pick" data-icon="🐴">🐴</button>
+          <button type="button" class="icon-pick" data-icon="🗝️">🗝️</button>
+          <button type="button" class="icon-pick" data-icon="🎨">🎨</button>
+          <button type="button" class="icon-pick" data-icon="🍕">🍕</button>
+        </div>
         <label>Team Photo (optional)</label>
         <div class="upload-box">
           <div>📷 Tap to take or upload a group photo</div>
@@ -249,6 +388,7 @@
   <div class="wrap">
     <div id="page-missions">
       <div id="sabotageBox"></div>
+      <div id="trailBox"></div>
       <div id="missionList"></div>
       <div id="finishBox"></div>
       <button class="ghost" id="resetBtn">Leave this team on this phone (progress is saved)</button>
@@ -414,6 +554,9 @@
   function awardPoints(team, pts, reason){
     team.points += pts;
     team.adjustments.push({ pts: pts, reason: reason || "", ts: nowISO(), auto: true });
+    if (pts > 0 && session.teamId && team.id === session.teamId && currentScreen !== "screen-admin"){
+      confettiBurst(26);
+    }
   }
   function addSubmission(sub){
     sub.id = uid("sub"); sub.ts = nowISO(); sub.status = "pending";
@@ -513,8 +656,24 @@
     document.getElementById("mainEventDate").textContent = s.eventDateLabel || "";
     document.getElementById("welcomeMsg").textContent = s.welcomeMessage || "";
     var t = myTeam();
-    document.getElementById("teamLabel").textContent = t ? t.name : "Team";
-    document.getElementById("scoreNow").textContent = t ? t.points : 0;
+    document.getElementById("teamLabel").textContent = t ? (t.icon || "🥨") + " " + t.name : "Team";
+    var bl = document.getElementById("burstLabel");
+    if (bl) bl.textContent = DB.missions.reduce(function(a, m){ return a + m.points; }, 0) + " POINTS UP FOR GRABS!";
+    var sn = document.getElementById("scoreNow");
+    var newPts = t ? t.points : 0;
+    if (window._shownScore !== undefined && newPts > window._shownScore){
+      var fromPts = window._shownScore, tickStart = null;
+      sn.classList.remove("pop"); void sn.offsetWidth; sn.classList.add("pop");
+      (function tick(ts){
+        if (!tickStart) tickStart = ts;
+        var k = Math.min(1, (ts - tickStart) / 600);
+        sn.textContent = Math.round(fromPts + (newPts - fromPts) * k);
+        if (k < 1) requestAnimationFrame(tick);
+      })(performance.now());
+    } else {
+      sn.textContent = newPts;
+    }
+    window._shownScore = newPts;
   }
 
   /* ================================================================
@@ -547,6 +706,60 @@
   }
 
   /* ================================================================
+     FUN LAYER — confetti + celebration stamp
+     ================================================================ */
+  var confettiCv = document.createElement("canvas");
+  confettiCv.id = "confettiCanvas";
+  document.body.appendChild(confettiCv);
+  var confettiCtx = confettiCv.getContext("2d");
+  var confettiParts = [], confettiRunning = false;
+  var CONFETTI_COLORS = ["#ff5964", "#ffb627", "#12b5a5", "#4ea8ff", "#7b2cbf", "#ff8a5c"];
+  function confettiSize(){ confettiCv.width = window.innerWidth; confettiCv.height = window.innerHeight; }
+  window.addEventListener("resize", confettiSize); confettiSize();
+  function confettiBurst(n, xFrac){
+    var W = confettiCv.width, H = confettiCv.height;
+    for (var i = 0; i < n; i++){
+      confettiParts.push({
+        x: (xFrac !== undefined ? xFrac : 0.5) * W + (Math.random() - 0.5) * W * 0.36,
+        y: H + 12,
+        vx: (Math.random() - 0.5) * 7.5,
+        vy: -(9.5 + Math.random() * 8.5),
+        w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+        rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+        circle: Math.random() < 0.3
+      });
+    }
+    if (!confettiRunning){ confettiRunning = true; requestAnimationFrame(confettiTick); }
+  }
+  function confettiCannon(){
+    confettiBurst(90, 0.12);
+    setTimeout(function(){ confettiBurst(90, 0.88); }, 180);
+    setTimeout(function(){ confettiBurst(110, 0.5); }, 360);
+  }
+  function confettiTick(){
+    confettiCtx.clearRect(0, 0, confettiCv.width, confettiCv.height);
+    confettiParts = confettiParts.filter(function(p){ return p.y < confettiCv.height + 30; });
+    confettiParts.forEach(function(p){
+      p.vy += 0.22; p.x += p.vx; p.y += p.vy; p.vx *= 0.99; p.rot += p.vr;
+      confettiCtx.save(); confettiCtx.translate(p.x, p.y); confettiCtx.rotate(p.rot);
+      confettiCtx.fillStyle = p.color;
+      if (p.circle){ confettiCtx.beginPath(); confettiCtx.arc(0, 0, p.w / 2, 0, 7); confettiCtx.fill(); }
+      else confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * (0.4 + 0.6 * Math.abs(Math.sin(p.rot * 2))));
+      confettiCtx.restore();
+    });
+    if (confettiParts.length){ requestAnimationFrame(confettiTick); }
+    else { confettiRunning = false; confettiCtx.clearRect(0, 0, confettiCv.width, confettiCv.height); }
+  }
+  function bigStamp(){
+    var d = document.createElement("div");
+    d.className = "big-stamp"; d.innerHTML = "<span>Stamped!</span>";
+    document.body.appendChild(d);
+    setTimeout(function(){ d.remove(); }, 1550);
+  }
+  var justUnlocked = false;
+
+  /* ================================================================
      DAY-OF GATE — teams can only sign in / create a team on the
      calendar day of the hunt (Eastern). Before that day, any
      sign-in attempt lands on the "eager beaver" screen.
@@ -576,6 +789,7 @@
     if (huntDayPhase() === "before"){ renderEarly(); show("screen-early"); return; }
     if (v === DB.settings.guestPassword){
       session.unlocked = true; saveSession();
+      justUnlocked = true;
       enterHunt();
     } else {
       fb.className = "feedback bad";
@@ -587,6 +801,7 @@
     refreshHeaders();
     if (huntDayPhase() === "before"){ renderEarly(); show("screen-early"); return; }
     if (DB.settings.status === "ended"){ renderClosed(); show("screen-closed"); return; }
+    if (justUnlocked){ justUnlocked = false; setTimeout(function(){ confettiBurst(80); }, 250); }
     var t = myTeam();
     if (!t){ renderTeamSetup(); show("screen-team"); return; }
     renderMain(); show("screen-main");
@@ -616,6 +831,16 @@
     nameInput.oninput = function(){
       document.getElementById("teamBtn").disabled = !nameInput.value.trim();
     };
+    var chosenIcon = "🥨";
+    var iconRow = document.getElementById("iconRow");
+    if (iconRow){
+      iconRow.querySelectorAll(".icon-pick").forEach(function(b){
+        b.addEventListener("click", function(){
+          iconRow.querySelectorAll(".icon-pick").forEach(function(x){ x.classList.remove("sel"); });
+          b.classList.add("sel"); chosenIcon = b.getAttribute("data-icon");
+        });
+      });
+    }
     var photoInput = document.getElementById("teamPhoto");
     document.querySelector("#screen-team .upload-box").onclick = function(){ photoInput.click(); };
     photoInput.onchange = function(){
@@ -629,11 +854,12 @@
     document.getElementById("teamBtn").onclick = function(){
       var name = nameInput.value.trim();
       if (!name) return;
-      var team = { id: uid("team"), name: name, photo: teamPhotoData, points: 0,
+      var team = { id: uid("team"), name: name, photo: teamPhotoData, icon: chosenIcon, points: 0,
                    adjustments: [], createdAt: nowISO() };
       DB.teams.push(team); saveDB();
       session.teamId = team.id; saveSession();
       teamPhotoData = null;
+      justUnlocked = true;
       enterHunt();
     };
   }
@@ -646,9 +872,9 @@
     DB.teams.forEach(function(t){
       var b = document.createElement("button");
       b.className = "secondary";
-      b.textContent = t.name + " · " + t.points + " pts";
+      b.textContent = (t.icon || "🥨") + " " + t.name + " · " + t.points + " pts";
       b.addEventListener("click", function(){
-        session.teamId = t.id; saveSession(); enterHunt();
+        session.teamId = t.id; saveSession(); justUnlocked = true; enterHunt();
       });
       box.appendChild(b);
     });
@@ -695,6 +921,17 @@
 
   function renderMissionList(){
     var t = myTeam();
+    var tb = document.getElementById("trailBox");
+    if (t && tb){
+      var dotCols = ["#ff5964", "#12b5a5", "#ffb627", "#4ea8ff", "#7b2cbf"];
+      var doneCount = 0;
+      var dots = DB.missions.map(function(m, i){
+        var d = missionEarned(t.id, m.id) !== undefined;
+        if (d) doneCount++;
+        return "<span class='dot" + (d ? " done" : "") + "'" + (d ? " style='background:" + dotCols[i % 5] + "'" : "") + ">" + (d ? "✓" : "") + "</span>";
+      }).join("");
+      tb.innerHTML = "<div class='trail'><div class='tlabel'>🗺️ Your adventure trail — " + doneCount + " of " + DB.missions.length + " stops stamped</div><div class='dots'>" + dots + "</div></div>";
+    } else if (tb) tb.innerHTML = "";
     var list = document.getElementById("missionList");
     list.innerHTML = "";
     var locked = t && !!activeSabotageFor(t.id);
@@ -714,7 +951,8 @@
             "<span class='pill type'>" + esc(m.type) + "</span>" +
             (m.restroom ? "<span class='pill gold'>Restroom</span>" : "") +
           "</div>" +
-        "</div><div class='chev'>›</div>";
+        "</div><div class='chev'>›</div>" +
+        (earned !== undefined ? "<div class='stamp'>Stamped</div>" : "");
       card.addEventListener("click", function(){
         if (locked){
           alert("Your team has an active SABOTAGE! Complete your sabotage challenges to unlock your missions.");
@@ -735,6 +973,7 @@
         "<p>Team <strong>" + esc(t.name) + "</strong></p>" +
         "<div style='font-size:46px;font-weight:800;color:var(--navy);'>" + t.points + " pts</div>" +
         "<p class='muted'>Keep an eye on the Leaderboard — final scores are announced by your host.</p></div>";
+      if (!session.celebratedFinish){ session.celebratedFinish = true; saveSession(); setTimeout(confettiCannon, 350); }
     } else fb.innerHTML = "";
   }
 
@@ -753,7 +992,7 @@
       ranked.forEach(function(tm, i){
         html += "<div class='rank-row" + (t && tm.id === t.id ? " me" : "") + "'>" +
           "<div class='rk'>" + (i + 1) + "</div>" +
-          "<div class='nm'>" + esc(tm.name) + "</div>" +
+          "<div class='nm'>" + esc((tm.icon || "🥨") + " " + tm.name) + "</div>" +
           "<div class='pt'>" + tm.points + " pts</div></div>";
       });
     }
@@ -778,6 +1017,16 @@
         "<div class='muted'>" + tm.points + " POINTS</div></div></div>";
     });
     if (!ranked.length) html += "<div class='card center'><p class='muted'>No teams played this hunt.</p></div>";
+    var mine = myTeam();
+    if (mine){
+      var stampedCount = DB.missions.filter(function(m){ return missionEarned(mine.id, m.id) !== undefined; }).length;
+      html += "<div class='cert'><div class='cert-icon'>" + esc(mine.icon || "🥨") + "</div>" +
+        "<div class='smallcaps'>Official Lancaster Adventurer</div>" +
+        "<h3>" + esc(mine.name) + "</h3>" +
+        (mine.photo ? "<img src='" + mine.photo + "' alt='Team photo'>" : "") +
+        "<p><strong>" + stampedCount + " of " + DB.missions.length + " missions stamped</strong> · Final score <strong>" + mine.points + " pts</strong></p>" +
+        "<p class='muted'>" + esc(DB.settings.eventDateLabel || "") + " — screenshot this and share your adventure!</p></div>";
+    }
     html += "<div class='card center'><h2>Thank you for playing!</h2>" +
       "<p>Thanks for bringing the energy to every stop.</p></div>" +
       "<div class='center smallcaps' style='margin-top:20px;'>Keep the Fun Going</div>" +
@@ -791,6 +1040,10 @@
     document.getElementById("ctaGift").addEventListener("click", function(){
       window.open("https://www.experiencelancasterpa.com/giftcards", "_blank");
     });
+    if (mine && mine.points > 0 && !window._closedCannon){
+      window._closedCannon = true;
+      setTimeout(confettiCannon, 400);
+    }
   }
 
   /* ================================================================
@@ -810,7 +1063,10 @@
   }
   function finishMission(msg){
     saveDB(); renderMain(); show("screen-main");
-    if (msg) setTimeout(function(){ alert(msg); }, 60);
+    if (msg){
+      confettiBurst(70); bigStamp();
+      setTimeout(function(){ alert(msg); }, 750);
+    }
   }
 
   /* Upload widget: returns {getUrls()} and calls onChange(urls). */
